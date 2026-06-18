@@ -10,7 +10,6 @@
     /* Diseño Minimalista & Soft */
     body { font-family: 'Inter', sans-serif; background-color: #F4F7F8; color: #0F172A; }
     
-    /* Clase maestra para las tarjetas (Cards) */
     .modern-card { 
       background: #FFFFFF; 
       border-radius: 24px; 
@@ -20,7 +19,12 @@
     
     .hidden { display: none !important; }
     .loader { border: 3px solid #f3f3f3; border-top: 3px solid #6366F1; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+    
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* Animación exclusiva para el panel de alertas en móvil */
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     
     /* Scrollbar Aesthetic */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -31,7 +35,7 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-  <!-- VISTA: LOGIN (Estilizado) -->
+  <!-- VISTA: LOGIN -->
   <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-[#F4F7F8] absolute inset-0 z-50">
     <div class="modern-card p-10 w-full max-w-md shadow-2xl border-none">
       <div class="text-center mb-8">
@@ -62,92 +66,59 @@
   <!-- VISTA: DASHBOARD -->
   <div id="dashboardView" class="hidden flex flex-col h-full">
     
-    <!-- Topbar Simple & Clean -->
-    <header class="px-8 py-5 flex justify-between items-center shrink-0">
+    <!-- Topbar: ADAPTADO PARA MÓVIL (Con botón de campana) -->
+    <header class="px-5 lg:px-8 py-4 flex justify-between items-center shrink-0 bg-white/60 backdrop-blur-md border-b border-slate-100/60 z-10">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/20">O</div>
+        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/20 shrink-0">O</div>
         <div>
             <h1 class="text-xl font-extrabold text-slate-800 leading-tight">Oficios<span class="text-indigo-600">Track</span></h1>
-            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Dashboard General</p>
+            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Dashboard General</p>
         </div>
       </div>
-      <div class="flex items-center gap-5">
-        <div class="text-right">
+      
+      <div class="flex items-center gap-4 lg:gap-5">
+        <!-- BOTÓN EXCLUSIVO MÓVIL: Muestra las alertas -->
+        <button onclick="document.getElementById('mobileAlertsWrapper').classList.remove('hidden')" class="xl:hidden relative p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+            <span id="badgeAlertsMobile" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white">0</span>
+        </button>
+
+        <div class="text-right hidden sm:block">
             <p id="userNameDisplay" class="text-sm font-bold text-slate-800 leading-none"></p>
             <p class="text-xs text-slate-400 font-medium mt-1">Tómbola Team</p>
         </div>
-        <div class="w-px h-8 bg-slate-200"></div>
+        <div class="w-px h-8 bg-slate-200 hidden sm:block"></div>
         <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">Salir</button>
       </div>
     </header>
 
-    <!-- Main Grid Layout -->
-    <main class="flex-1 overflow-hidden flex flex-col xl:flex-row w-full max-w-[1600px] mx-auto px-4 lg:px-8 pb-8 gap-6">
+    <!-- MAIN: ADAPTADO PARA PERMITIR SCROLL EN MÓVIL (overflow-y-auto xl:overflow-hidden) -->
+    <main class="flex-1 overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-6 gap-6">
       
-      <!-- COLUMNA IZQUIERDA (Gráficos, Filtros, Tabla) -->
-      <div class="flex-1 flex flex-col gap-6 overflow-hidden">
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="flex-1 flex flex-col gap-6 xl:overflow-hidden shrink-0 xl:shrink">
         
-        <!-- Fila 1: KPIs y Gráfico -->
         <div class="flex flex-col lg:flex-row gap-6 shrink-0">
-          
-          <!-- Bloque KPIs (4 Tarjetas) -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
-            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
-              <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignados</p>
-                <span class="p-1.5 bg-slate-50 rounded-lg text-slate-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
-              </div>
-              <h3 id="kpiTotal" class="text-4xl font-black text-slate-800">0</h3>
-            </div>
-
-            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
-              <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes</p>
-                <span class="p-1.5 bg-amber-50 rounded-lg text-amber-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
-              </div>
-              <h3 id="kpiPendientes" class="text-4xl font-black text-slate-800">0</h3>
-            </div>
-
-            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
-              <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">En Acción</p>
-                <span class="p-1.5 bg-blue-50 rounded-lg text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
-              </div>
-              <h3 id="kpiAccion" class="text-4xl font-black text-slate-800">0</h3>
-            </div>
-
-            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
-              <div class="flex justify-between items-start mb-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Donados</p>
-                <span class="p-1.5 bg-emerald-50 rounded-lg text-emerald-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
-              </div>
-              <div class="flex items-baseline gap-2">
-                <h3 id="kpiDonados" class="text-4xl font-black text-emerald-500">0</h3>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">🎉</span>
-              </div>
-            </div>
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignados</p><span class="p-1.5 bg-slate-50 rounded-lg text-slate-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span></div><h3 id="kpiTotal" class="text-4xl font-black text-slate-800">0</h3></div>
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes</p><span class="p-1.5 bg-amber-50 rounded-lg text-amber-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span></div><h3 id="kpiPendientes" class="text-4xl font-black text-slate-800">0</h3></div>
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">En Acción</p><span class="p-1.5 bg-blue-50 rounded-lg text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span></div><h3 id="kpiAccion" class="text-4xl font-black text-slate-800">0</h3></div>
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Donados</p><span class="p-1.5 bg-emerald-50 rounded-lg text-emerald-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span></div><div class="flex items-baseline gap-2"><h3 id="kpiDonados" class="text-4xl font-black text-emerald-500">0</h3><span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">🎉</span></div></div>
           </div>
-
-          <!-- Gráfica -->
-          <div class="modern-card p-5 w-full lg:w-64 flex flex-col items-center justify-center">
+          <div class="modern-card p-5 w-full lg:w-64 flex flex-col items-center justify-center shrink-0">
              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider w-full mb-3 text-center">Progreso</h3>
-             <div class="relative w-28 h-28">
-                 <canvas id="statusChart"></canvas>
-             </div>
+             <div class="relative w-28 h-28"><canvas id="statusChart"></canvas></div>
           </div>
         </div>
 
-        <!-- Fila 2: Filtros (Caja Roja de tu referencia) -->
         <div class="modern-card p-3 flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
-            <!-- Tabs movidos aquí para centralizar controles -->
             <div class="flex bg-slate-50 p-1 rounded-xl w-full md:w-auto">
               <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all">Mis Oficios</button>
               <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all">Todos</button>
             </div>
-            
             <div class="flex flex-1 w-full md:w-auto gap-3 justify-end">
                 <div class="relative w-full md:max-w-xs">
-                    <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg class="w-4 h-4 absolute left-3 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input type="text" id="searchInp" onkeyup="renderizarTabla()" placeholder="Buscar negocio..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-200 focus:ring-2 focus:ring-indigo-100 outline-none transition-all">
                 </div>
                 <select id="statusFilter" onchange="renderizarTabla()" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all cursor-pointer">
@@ -160,10 +131,10 @@
             </div>
         </div>
 
-        <!-- Fila 3: Tabla Principal (Caja Verde de tu referencia) -->
-        <div class="modern-card flex-1 flex flex-col overflow-hidden">
+        <!-- TABLA: min-h-[400px] garantiza que no desaparezca en celulares -->
+        <div class="modern-card flex-1 flex flex-col overflow-hidden min-h-[400px] xl:min-h-0">
           <div class="overflow-y-auto flex-1 p-2">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse min-w-[600px]">
               <thead class="sticky top-0 bg-white z-10">
                 <tr>
                   <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100">Negocio / Persona</th>
@@ -181,19 +152,25 @@
         </div>
       </div>
 
-      <!-- COLUMNA DERECHA: Notificaciones (Caja Azul de tu referencia) -->
-      <div class="w-full xl:w-[340px] flex flex-col shrink-0 overflow-hidden">
-        <div class="modern-card h-full flex flex-col overflow-hidden">
-            <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+      <!-- COLUMNA DERECHA: ALERTAS (Convertida en Slide-Up Modal para Móvil) -->
+      <div id="mobileAlertsWrapper" class="hidden xl:flex fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm xl:relative xl:inset-auto xl:bg-transparent xl:z-auto w-full xl:w-[340px] flex-col shrink-0 overflow-hidden items-center justify-end xl:justify-start sm:p-4 xl:p-0 transition-all">
+        
+        <!-- En móvil: redondeado arriba, animado. En PC: tarjeta normal -->
+        <div class="modern-card w-full h-[85vh] xl:h-full max-w-lg xl:max-w-none flex flex-col overflow-hidden shadow-2xl xl:shadow-none rounded-t-3xl xl:rounded-2xl border-none xl:border-solid animate-slide-up xl:animate-none">
+            <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
                 <div>
                   <h2 class="font-extrabold text-slate-800 text-lg leading-tight">Alertas Activas</h2>
                   <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Seguimiento de Fechas</p>
                 </div>
-                <span id="badgeAlerts" class="bg-rose-50 text-rose-600 text-xs font-black px-2.5 py-1 rounded-full border border-rose-100">0</span>
+                <div class="flex items-center gap-3">
+                    <span id="badgeAlerts" class="bg-rose-50 text-rose-600 text-xs font-black px-2.5 py-1 rounded-full border border-rose-100">0</span>
+                    <!-- Botón Cerrar (Solo Móvil) -->
+                    <button onclick="document.getElementById('mobileAlertsWrapper').classList.add('hidden')" class="xl:hidden text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+                </div>
             </div>
             
             <div id="alertsContainer" class="flex-1 overflow-y-auto p-5 space-y-3 bg-[#fafcfc]">
-                <!-- Notificaciones renderizadas aquí con estilo "Soft" -->
+                <!-- Notificaciones renderizadas aquí -->
                 <p class="text-sm text-slate-400 text-center mt-10 font-medium">Cargando datos...</p>
             </div>
         </div>
@@ -201,31 +178,31 @@
     </main>
   </div>
 
-  <!-- MODAL: REGISTRO DE SEGUIMIENTO (Mantenido funcional, mejorado visualmente) -->
+  <!-- MODAL: REGISTRO DE SEGUIMIENTO (Incluye la Lógica de Donaciones de tu versión anterior) -->
   <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
     <div class="modern-card w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden shadow-2xl border-none">
       
-      <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-white">
+      <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-white shrink-0">
         <div>
-          <div class="flex items-center gap-2 mb-2">
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
              <span id="modalOficioCarpeta" class="text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"></span>
              <span id="modalCurrentStatus" class="text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg"></span>
-             <!-- NUEVO: Badge de Fecha Programada -->
+             <!-- Badge Fecha -->
              <span id="modalFechaProgramada" class="hidden text-[10px] font-extrabold uppercase tracking-widest bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg border border-amber-100"></span>
           </div>
           <h2 id="modalOficioName" class="text-2xl font-extrabold text-slate-800">Cargando...</h2>
         </div>
-        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors">✕</button>
+        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0">✕</button>
       </div>
       
-      <div class="p-6 overflow-y-auto h-48 bg-[#fafcfc] border-b border-slate-100 inset-shadow">
+      <div class="p-6 overflow-y-auto h-40 shrink-0 bg-[#fafcfc] border-b border-slate-100">
         <h3 class="text-[11px] font-extrabold text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Historial Reciente
         </h3>
         <div id="historialTimeline" class="space-y-4 border-l-2 border-slate-100 pl-4 ml-2"></div>
       </div>
 
-      <div class="p-6 bg-white space-y-4">
+      <div class="p-6 bg-white space-y-4 overflow-y-auto">
         <div>
             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">1. Resultado de gestión</label>
             <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 outline-none font-bold text-slate-700 cursor-pointer transition-all">
@@ -236,13 +213,12 @@
             </select>
         </div>
 
-        <div id="dateContainer" class="hidden animate-fade-in">
+        <div id="dateContainer" class="hidden">
             <label class="block text-[11px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">2. ¿Para qué fecha acordaron?</label>
             <input type="date" id="modalFecha" class="w-full px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none text-indigo-700 font-bold transition-all">
         </div>
 
-        <!-- NUEVO: Contenedor de Detalle de Donación -->
-        <div id="donacionContainer" class="hidden animate-fade-in">
+        <div id="donacionContainer" class="hidden">
             <label class="block text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">¿Qué donaron exactamente?</label>
             <input type="text" id="detalleDonacion" placeholder="Ej: 2 cajas de galletas, 5 litros de aceite..." class="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-200 outline-none text-emerald-700 font-bold transition-all">
         </div>
@@ -267,7 +243,6 @@
     // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
 
-    // Variables Globales
     let currentUser = null;
     let currentOficios = [];
     let activeFilterCarpeta = 'mis';
@@ -278,7 +253,7 @@
         const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         return await response.json();
       } catch (error) {
-        console.error("Red:", error); return { success: false, message: "Error conectando con el servidor." };
+        console.error("Red:", error); return { success: false, message: "Error conectando." };
       }
     }
 
@@ -293,7 +268,6 @@
 
       btnText.textContent = "Verificando..."; loader.classList.remove('hidden'); errorMsg.classList.add('hidden');
       const response = await apiRequest({ action: 'login', username: user, password: pass });
-      
       btnText.textContent = "Iniciar Sesión"; loader.classList.add('hidden');
 
       if(response.success) {
@@ -312,7 +286,6 @@
     async function cargarDataGeneral() {
       document.getElementById('tablaLoader').classList.remove('hidden');
       document.getElementById('tablaOficiosBody').innerHTML = '';
-      
       const response = await apiRequest({ action: 'getOficios' });
       document.getElementById('tablaLoader').classList.add('hidden');
 
@@ -356,21 +329,15 @@
       generarNotificaciones(filteredOficios);
 
       if (filteredOficios.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold text-sm">No se encontraron oficios con estos filtros.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold text-sm">No se encontraron oficios.</td></tr>`;
         return;
       }
 
       filteredOficios.forEach(oficio => {
-        let bgStyle = "bg-amber-50 text-amber-600"; 
-        let dotColor = "bg-amber-400";
-        
-        if(oficio.estado === 'Donado') { 
-            bgStyle = "bg-emerald-50 text-emerald-600"; dotColor = "bg-emerald-400"; 
-        } else if(oficio.estado === 'Por Recoger') { 
-            bgStyle = "bg-blue-50 text-blue-600"; dotColor = "bg-blue-400"; 
-        } else if(oficio.estado === 'Por Responder') { 
-            bgStyle = "bg-purple-50 text-purple-600"; dotColor = "bg-purple-400"; 
-        }
+        let bgStyle = "bg-amber-50 text-amber-600"; let dotColor = "bg-amber-400";
+        if(oficio.estado === 'Donado') { bgStyle = "bg-emerald-50 text-emerald-600"; dotColor = "bg-emerald-400"; } 
+        else if(oficio.estado === 'Por Recoger') { bgStyle = "bg-blue-50 text-blue-600"; dotColor = "bg-blue-400"; } 
+        else if(oficio.estado === 'Por Responder') { bgStyle = "bg-purple-50 text-purple-600"; dotColor = "bg-purple-400"; }
 
         const tagHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide ${bgStyle}"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${oficio.estado}</span>`;
 
@@ -379,7 +346,7 @@
         tr.onclick = () => abrirModal(oficio);
         
         tr.innerHTML = `
-          <td class="px-6 py-4 font-bold text-slate-800 text-sm">${oficio.negocio}</td>
+          <td class="px-6 py-4 font-bold text-slate-800 text-sm whitespace-nowrap">${oficio.negocio}</td>
           <td class="px-6 py-4 text-slate-500 font-bold text-xs"><span class="bg-slate-100 px-2.5 py-1 rounded-lg">Fólder ${oficio.carpeta}</span></td>
           <td class="px-6 py-4">${tagHTML}</td>
           <td class="px-6 py-4 text-right">
@@ -405,18 +372,9 @@
 
       const ctx = document.getElementById('statusChart').getContext('2d');
       if(chartInstance) chartInstance.destroy();
-      
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
-        data: {
-          labels: ['Pendiente', 'Acción Req.', 'Donado'],
-          datasets: [{
-            data: [pendientes, accion, donados],
-            backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'],
-            borderWidth: 0,
-            hoverOffset: 4
-          }]
-        },
+        data: { labels: ['Pendiente', 'Acción Req.', 'Donado'], datasets: [{ data: [pendientes, accion, donados], backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'], borderWidth: 0, hoverOffset: 4 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '78%' }
       });
     }
@@ -426,9 +384,7 @@
       const badgeAlerts = document.getElementById('badgeAlerts');
       alertsContainer.innerHTML = '';
       let alertCount = 0;
-
-      const hoy = new Date();
-      hoy.setHours(0,0,0,0);
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
       let alertas = [];
 
       data.forEach(oficio => {
@@ -439,22 +395,21 @@
           if(diffDays <= 3) alertas.push({ oficio: oficio, diffDays: diffDays });
         }
       });
-
       alertas.sort((a,b) => a.diffDays - b.diffDays);
 
       if(alertas.length === 0) {
         alertsContainer.innerHTML = `<div class="text-center py-10"><p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Sin Alertas Activas</p></div>`;
         badgeAlerts.textContent = "0";
+        if(document.getElementById('badgeAlertsMobile')) document.getElementById('badgeAlertsMobile').textContent = "0";
         return;
       }
 
       alertas.forEach(alerta => {
         alertCount++;
         let bgCard = "bg-blue-50/50"; let dotColor = "bg-blue-500"; let textHighlight = "text-blue-600"; let timeMsg = `En ${alerta.diffDays} días`;
-        if(alerta.diffDays < 0) { bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600"; timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} días`; } 
+        if(alerta.diffDays < 0) { bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600"; timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} d`; } 
         else if (alerta.diffDays === 0) { bgCard = "bg-amber-50/50"; dotColor = "bg-amber-500"; textHighlight = "text-amber-600"; timeMsg = "¡Hoy!"; } 
         else if (alerta.diffDays === 1) { timeMsg = "Para Mañana"; }
-
         const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger' : 'Llamar';
 
         alertsContainer.innerHTML += `
@@ -467,12 +422,17 @@
           </div>
         `;
       });
+      
       badgeAlerts.textContent = alertCount;
+      // Actualiza también la campana del móvil
+      if(document.getElementById('badgeAlertsMobile')) document.getElementById('badgeAlertsMobile').textContent = alertCount;
     }
 
     let oficioSeleccionado = null;
 
     function abrirModalPorId(id) {
+        // En móvil, si abre una alerta, cerramos el panel lateral para mostrar el modal del oficio
+        document.getElementById('mobileAlertsWrapper').classList.add('hidden');
         const o = currentOficios.find(x => x.id == id);
         if(o) abrirModal(o);
     }
@@ -483,11 +443,9 @@
       document.getElementById('modalOficioCarpeta').textContent = 'Fólder ' + oficio.carpeta;
       document.getElementById('modalCurrentStatus').textContent = oficio.estado;
       
-      // NUEVO: Lógica para mostrar la Fecha Programada en el Header del modal
       const badgeFecha = document.getElementById('modalFechaProgramada');
       if (oficio.fechaCita && (oficio.estado === 'Por Recoger' || oficio.estado === 'Por Responder')) {
           const d = new Date(oficio.fechaCita);
-          // Le sumamos a la fecha para evitar problemas de zona horaria al renderizar
           d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
           const fechaFormat = ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
           badgeFecha.textContent = `🗓️ PARA: ${fechaFormat}`;
@@ -508,7 +466,6 @@
 
     function cerrarModal() { document.getElementById('modalOficio').classList.add('hidden'); }
 
-    // NUEVO: Modificada para mostrar/ocultar el input de donación y cambiar el label del comentario
     function toggleDateInput() {
       const estado = document.getElementById('modalNuevoEstado').value;
       const dateContainer = document.getElementById('dateContainer');
@@ -561,7 +518,6 @@
       const donacionDetalle = document.getElementById('detalleDonacion').value;
       const btn = document.getElementById('btnGuardarAvance');
 
-      // NUEVAS REGLAS DE VALIDACIÓN:
       if (nuevoEstado !== 'Donado' && !comentario.trim()) {
           return alert("El comentario sobre la gestión es obligatorio.");
       }
@@ -581,7 +537,7 @@
         comentario: comentario, 
         nuevoEstado: nuevoEstado,
         fechaCita: fechaCita,
-        donacionDetalle: donacionDetalle // <- Aquí enviamos el detalle al backend
+        donacionDetalle: donacionDetalle
       });
 
       btn.textContent = "Guardar Avance"; btn.disabled = false;
@@ -594,3 +550,5 @@
       }
     }
   </script>
+</body>
+</html>
