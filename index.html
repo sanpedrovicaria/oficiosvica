@@ -210,6 +210,8 @@
           <div class="flex items-center gap-2 mb-2">
              <span id="modalOficioCarpeta" class="text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"></span>
              <span id="modalCurrentStatus" class="text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg"></span>
+             <!-- NUEVO: Badge de Fecha Programada -->
+             <span id="modalFechaProgramada" class="hidden text-[10px] font-extrabold uppercase tracking-widest bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg border border-amber-100"></span>
           </div>
           <h2 id="modalOficioName" class="text-2xl font-extrabold text-slate-800">Cargando...</h2>
         </div>
@@ -223,7 +225,7 @@
         <div id="historialTimeline" class="space-y-4 border-l-2 border-slate-100 pl-4 ml-2"></div>
       </div>
 
-      <div class="p-6 bg-white space-y-5">
+      <div class="p-6 bg-white space-y-4">
         <div>
             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">1. Resultado de gestión</label>
             <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 outline-none font-bold text-slate-700 cursor-pointer transition-all">
@@ -239,8 +241,14 @@
             <input type="date" id="modalFecha" class="w-full px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none text-indigo-700 font-bold transition-all">
         </div>
 
+        <!-- NUEVO: Contenedor de Detalle de Donación -->
+        <div id="donacionContainer" class="hidden animate-fade-in">
+            <label class="block text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">¿Qué donaron exactamente?</label>
+            <input type="text" id="detalleDonacion" placeholder="Ej: 2 cajas de galletas, 5 litros de aceite..." class="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-200 outline-none text-emerald-700 font-bold transition-all">
+        </div>
+
         <div>
-            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Comentarios adicionales</label>
+            <label id="labelComentario" class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Comentarios adicionales</label>
             <textarea id="nuevoComentario" rows="2" placeholder="Ej: Hablé con el dueño, dijo que..." class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-100 outline-none resize-none text-sm font-medium transition-all"></textarea>
         </div>
 
@@ -255,7 +263,7 @@
 
   <script>
     // ==========================================
-    // CONFIGURACIÓN API (Manten tu URL aquí)
+    // CONFIGURACIÓN API
     // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
 
@@ -265,7 +273,6 @@
     let activeFilterCarpeta = 'mis';
     let chartInstance = null;
 
-    // --- CONEXIÓN API ---
     async function apiRequest(payload) {
       try {
         const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -275,7 +282,6 @@
       }
     }
 
-    // --- LOGIN ---
     async function intentarLogin() {
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
@@ -303,7 +309,6 @@
 
     function cerrarSesion() { location.reload(); }
 
-    // --- CARGA DE DATOS ---
     async function cargarDataGeneral() {
       document.getElementById('tablaLoader').classList.remove('hidden');
       document.getElementById('tablaOficiosBody').innerHTML = '';
@@ -332,7 +337,6 @@
       renderizarTabla();
     }
 
-    // --- RENDERIZADO UX & DISEÑO DE TAGS ---
     function renderizarTabla() {
       const tbody = document.getElementById('tablaOficiosBody');
       const searchInp = document.getElementById('searchInp').value.toLowerCase();
@@ -357,19 +361,15 @@
       }
 
       filteredOficios.forEach(oficio => {
-        // DISEÑO DE TAGS (Ref 2) - Estilo Píldora suave con puntito
         let bgStyle = "bg-amber-50 text-amber-600"; 
         let dotColor = "bg-amber-400";
         
         if(oficio.estado === 'Donado') { 
-            bgStyle = "bg-emerald-50 text-emerald-600"; 
-            dotColor = "bg-emerald-400"; 
+            bgStyle = "bg-emerald-50 text-emerald-600"; dotColor = "bg-emerald-400"; 
         } else if(oficio.estado === 'Por Recoger') { 
-            bgStyle = "bg-blue-50 text-blue-600"; 
-            dotColor = "bg-blue-400"; 
+            bgStyle = "bg-blue-50 text-blue-600"; dotColor = "bg-blue-400"; 
         } else if(oficio.estado === 'Por Responder') { 
-            bgStyle = "bg-purple-50 text-purple-600"; 
-            dotColor = "bg-purple-400"; 
+            bgStyle = "bg-purple-50 text-purple-600"; dotColor = "bg-purple-400"; 
         }
 
         const tagHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide ${bgStyle}"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${oficio.estado}</span>`;
@@ -403,7 +403,6 @@
       document.getElementById('kpiAccion').textContent = accion;
       document.getElementById('kpiDonados').textContent = donados;
 
-      // Gráfica minimalista
       const ctx = document.getElementById('statusChart').getContext('2d');
       if(chartInstance) chartInstance.destroy();
       
@@ -422,7 +421,6 @@
       });
     }
 
-    // --- SISTEMA DE NOTIFICACIONES (Ref 1) ---
     function generarNotificaciones(data) {
       const alertsContainer = document.getElementById('alertsContainer');
       const badgeAlerts = document.getElementById('badgeAlerts');
@@ -431,7 +429,6 @@
 
       const hoy = new Date();
       hoy.setHours(0,0,0,0);
-
       let alertas = [];
 
       data.forEach(oficio => {
@@ -453,22 +450,10 @@
 
       alertas.forEach(alerta => {
         alertCount++;
-        
-        // Estilos inspirados en la Ref 1 (Fondos pastel, puntos vibrantes)
-        let bgCard = "bg-blue-50/50";
-        let dotColor = "bg-blue-500";
-        let textHighlight = "text-blue-600";
-        let timeMsg = `En ${alerta.diffDays} días`;
-
-        if(alerta.diffDays < 0) {
-          bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600";
-          timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} días`;
-        } else if (alerta.diffDays === 0) {
-          bgCard = "bg-amber-50/50"; dotColor = "bg-amber-500"; textHighlight = "text-amber-600";
-          timeMsg = "¡Hoy!";
-        } else if (alerta.diffDays === 1) {
-          timeMsg = "Para Mañana";
-        }
+        let bgCard = "bg-blue-50/50"; let dotColor = "bg-blue-500"; let textHighlight = "text-blue-600"; let timeMsg = `En ${alerta.diffDays} días`;
+        if(alerta.diffDays < 0) { bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600"; timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} días`; } 
+        else if (alerta.diffDays === 0) { bgCard = "bg-amber-50/50"; dotColor = "bg-amber-500"; textHighlight = "text-amber-600"; timeMsg = "¡Hoy!"; } 
+        else if (alerta.diffDays === 1) { timeMsg = "Para Mañana"; }
 
         const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger' : 'Llamar';
 
@@ -485,7 +470,6 @@
       badgeAlerts.textContent = alertCount;
     }
 
-    // --- LÓGICA DEL MODAL ---
     let oficioSeleccionado = null;
 
     function abrirModalPorId(id) {
@@ -499,7 +483,21 @@
       document.getElementById('modalOficioCarpeta').textContent = 'Fólder ' + oficio.carpeta;
       document.getElementById('modalCurrentStatus').textContent = oficio.estado;
       
+      // NUEVO: Lógica para mostrar la Fecha Programada en el Header del modal
+      const badgeFecha = document.getElementById('modalFechaProgramada');
+      if (oficio.fechaCita && (oficio.estado === 'Por Recoger' || oficio.estado === 'Por Responder')) {
+          const d = new Date(oficio.fechaCita);
+          // Le sumamos a la fecha para evitar problemas de zona horaria al renderizar
+          d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+          const fechaFormat = ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+          badgeFecha.textContent = `🗓️ PARA: ${fechaFormat}`;
+          badgeFecha.classList.remove('hidden');
+      } else {
+          badgeFecha.classList.add('hidden');
+      }
+      
       document.getElementById('nuevoComentario').value = '';
+      document.getElementById('detalleDonacion').value = '';
       document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : 'Pendiente';
       document.getElementById('modalFecha').value = '';
       toggleDateInput();
@@ -510,11 +508,28 @@
 
     function cerrarModal() { document.getElementById('modalOficio').classList.add('hidden'); }
 
+    // NUEVO: Modificada para mostrar/ocultar el input de donación y cambiar el label del comentario
     function toggleDateInput() {
       const estado = document.getElementById('modalNuevoEstado').value;
       const dateContainer = document.getElementById('dateContainer');
-      if (estado === 'Por Responder' || estado === 'Por Recoger') dateContainer.classList.remove('hidden');
-      else { dateContainer.classList.add('hidden'); document.getElementById('modalFecha').value = ''; }
+      const donacionContainer = document.getElementById('donacionContainer');
+      const labelComentario = document.getElementById('labelComentario');
+
+      if (estado === 'Por Responder' || estado === 'Por Recoger') {
+          dateContainer.classList.remove('hidden');
+          donacionContainer.classList.add('hidden');
+          labelComentario.textContent = "Comentarios adicionales";
+      } else if (estado === 'Donado') {
+          dateContainer.classList.add('hidden');
+          donacionContainer.classList.remove('hidden');
+          labelComentario.textContent = "Comentario de cierre (Opcional)";
+          document.getElementById('modalFecha').value = '';
+      } else {
+          dateContainer.classList.add('hidden');
+          donacionContainer.classList.add('hidden');
+          labelComentario.textContent = "Comentarios adicionales";
+          document.getElementById('modalFecha').value = '';
+      }
     }
 
     async function cargarHistorial(idOficio) {
@@ -543,11 +558,18 @@
       const comentario = document.getElementById('nuevoComentario').value;
       const nuevoEstado = document.getElementById('modalNuevoEstado').value;
       const fechaCita = document.getElementById('modalFecha').value;
+      const donacionDetalle = document.getElementById('detalleDonacion').value;
       const btn = document.getElementById('btnGuardarAvance');
 
-      if(!comentario.trim()) return alert("El comentario es obligatorio.");
-      if((nuevoEstado === 'Por Responder' || nuevoEstado === 'Por Recoger') && !fechaCita) {
-          return alert("Debes seleccionar una fecha para agendar.");
+      // NUEVAS REGLAS DE VALIDACIÓN:
+      if (nuevoEstado !== 'Donado' && !comentario.trim()) {
+          return alert("El comentario sobre la gestión es obligatorio.");
+      }
+      if ((nuevoEstado === 'Por Responder' || nuevoEstado === 'Por Recoger') && !fechaCita) {
+          return alert("Debes seleccionar una fecha para agendar en el calendario.");
+      }
+      if (nuevoEstado === 'Donado' && !donacionDetalle.trim()) {
+          return alert("Por favor, especifica qué fue lo que donaron en el campo verde.");
       }
 
       btn.textContent = "Procesando..."; btn.disabled = true;
@@ -558,7 +580,8 @@
         idUser: currentUser.id, 
         comentario: comentario, 
         nuevoEstado: nuevoEstado,
-        fechaCita: fechaCita
+        fechaCita: fechaCita,
+        donacionDetalle: donacionDetalle // <- Aquí enviamos el detalle al backend
       });
 
       btn.textContent = "Guardar Avance"; btn.disabled = false;
@@ -571,5 +594,3 @@
       }
     }
   </script>
-</body>
-</html>
