@@ -2,46 +2,59 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Kermesse Dashboard</title>
+  <title>Kermesse Dashboard - Modern UI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
-    .glass { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #e2e8f0;}
+    /* Diseño Minimalista & Soft */
+    body { font-family: 'Inter', sans-serif; background-color: #F4F7F8; color: #0F172A; }
+    
+    /* Clase maestra para las tarjetas (Cards) */
+    .modern-card { 
+      background: #FFFFFF; 
+      border-radius: 24px; 
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03); 
+      border: 1px solid #F1F5F9; 
+    }
+    
     .hidden { display: none !important; }
-    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4F46E5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #6366F1; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* Scrollbar custom para áreas pequeñas */
-    ::-webkit-scrollbar { width: 6px; }
+    /* Scrollbar Aesthetic */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
 </head>
-<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden">
 
-  <!-- VISTA: LOGIN -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 absolute inset-0 z-50">
-    <div class="bg-white p-10 rounded-2xl w-full max-w-md shadow-2xl">
+  <!-- VISTA: LOGIN (Estilizado) -->
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-[#F4F7F8] absolute inset-0 z-50">
+    <div class="modern-card p-10 w-full max-w-md shadow-2xl border-none">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-indigo-600 mb-2">Oficios Track</h1>
-        <p class="text-slate-500 text-sm">Panel de Gestión y Seguimiento</p>
+        <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-800 mb-1">Parroquia Tracker</h1>
+        <p class="text-slate-400 text-sm font-medium">Ingresa para gestionar los oficios</p>
       </div>
-      <div class="space-y-5">
+      <div class="space-y-4">
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Usuario</label>
-          <input type="text" id="username" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Usuario</label>
+          <input type="text" id="username" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium transition-all text-sm">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Contraseña</label>
-          <input type="password" id="password" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" onkeypress="if(event.key === 'Enter') intentarLogin()">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Contraseña</label>
+          <input type="password" id="password" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium transition-all text-sm" onkeypress="if(event.key === 'Enter') intentarLogin()">
         </div>
-        <button onclick="intentarLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex justify-center items-center">
-          <span id="loginBtnText">Ingresar al Sistema</span>
+        <button onclick="intentarLogin()" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex justify-center items-center">
+          <span id="loginBtnText">Iniciar Sesión</span>
           <div id="loginLoader" class="loader hidden ml-2 border-white border-top-indigo-200"></div>
         </button>
-        <p id="loginError" class="text-rose-500 text-sm text-center font-medium hidden"></p>
+        <p id="loginError" class="text-rose-500 text-sm text-center font-bold hidden pt-2"></p>
       </div>
     </div>
   </div>
@@ -49,91 +62,118 @@
   <!-- VISTA: DASHBOARD -->
   <div id="dashboardView" class="hidden flex flex-col h-full">
     
-    <!-- Topbar -->
-    <header class="bg-white px-6 py-4 flex justify-between items-center border-b border-slate-200 shrink-0">
-      <div class="flex items-center gap-8">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">O</div>
-            <h1 class="text-xl font-bold text-slate-800">Oficios<span class="text-indigo-600">Track</span></h1>
+    <!-- Topbar Simple & Clean -->
+    <header class="px-8 py-5 flex justify-between items-center shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/20">O</div>
+        <div>
+            <h1 class="text-xl font-extrabold text-slate-800 leading-tight">Oficios<span class="text-indigo-600">Track</span></h1>
+            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Dashboard General</p>
         </div>
-        <nav class="hidden md:flex gap-2 bg-slate-100 p-1 rounded-lg">
-          <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all">Mis Oficios</button>
-          <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all">Todos</button>
-        </nav>
       </div>
-      <div class="flex items-center gap-4">
-        <div class="text-right hidden sm:block">
-            <p id="userNameDisplay" class="text-sm font-bold text-slate-700 leading-tight"></p>
-            <p class="text-xs text-slate-400 font-medium">Tómbola Team</p>
+      <div class="flex items-center gap-5">
+        <div class="text-right">
+            <p id="userNameDisplay" class="text-sm font-bold text-slate-800 leading-none"></p>
+            <p class="text-xs text-slate-400 font-medium mt-1">Tómbola Team</p>
         </div>
-        <button onclick="cerrarSesion()" class="text-sm border border-slate-200 hover:bg-slate-50 text-slate-600 px-4 py-2 rounded-lg transition-all font-semibold">Cerrar Sesión</button>
+        <div class="w-px h-8 bg-slate-200"></div>
+        <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">Salir</button>
       </div>
     </header>
 
-    <!-- Contenido Principal (Grid Layout) -->
-    <main class="flex-1 overflow-hidden flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto p-4 lg:p-6 gap-6">
+    <!-- Main Grid Layout -->
+    <main class="flex-1 overflow-hidden flex flex-col xl:flex-row w-full max-w-[1600px] mx-auto px-4 lg:px-8 pb-8 gap-6">
       
-      <!-- Columna Izquierda: KPIs, Gráfica y Tabla -->
-      <div class="flex-1 flex flex-col overflow-hidden gap-6">
+      <!-- COLUMNA IZQUIERDA (Gráficos, Filtros, Tabla) -->
+      <div class="flex-1 flex flex-col gap-6 overflow-hidden">
         
-        <!-- KPIs Row -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-          <div class="glass p-4 border-l-4 border-indigo-500">
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Total Asignados</p>
-            <h3 id="kpiTotal" class="text-2xl font-black text-slate-800 mt-1">-</h3>
+        <!-- Fila 1: KPIs y Gráfico -->
+        <div class="flex flex-col lg:flex-row gap-6 shrink-0">
+          
+          <!-- Bloque KPIs (4 Tarjetas) -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div class="flex justify-between items-start mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignados</p>
+                <span class="p-1.5 bg-slate-50 rounded-lg text-slate-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+              </div>
+              <h3 id="kpiTotal" class="text-4xl font-black text-slate-800">0</h3>
+            </div>
+
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div class="flex justify-between items-start mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes</p>
+                <span class="p-1.5 bg-amber-50 rounded-lg text-amber-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+              </div>
+              <h3 id="kpiPendientes" class="text-4xl font-black text-slate-800">0</h3>
+            </div>
+
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div class="flex justify-between items-start mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">En Acción</p>
+                <span class="p-1.5 bg-blue-50 rounded-lg text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span>
+              </div>
+              <h3 id="kpiAccion" class="text-4xl font-black text-slate-800">0</h3>
+            </div>
+
+            <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div class="flex justify-between items-start mb-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Donados</p>
+                <span class="p-1.5 bg-emerald-50 rounded-lg text-emerald-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <h3 id="kpiDonados" class="text-4xl font-black text-emerald-500">0</h3>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">🎉</span>
+              </div>
+            </div>
           </div>
-          <div class="glass p-4 border-l-4 border-amber-400">
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Pendientes</p>
-            <h3 id="kpiPendientes" class="text-2xl font-black text-slate-800 mt-1">-</h3>
-          </div>
-          <div class="glass p-4 border-l-4 border-sky-400">
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Por Recoger/Resp.</p>
-            <h3 id="kpiAccion" class="text-2xl font-black text-slate-800 mt-1">-</h3>
-          </div>
-          <div class="glass p-4 border-l-4 border-emerald-500">
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Donados 🎉</p>
-            <h3 id="kpiDonados" class="text-2xl font-black text-emerald-600 mt-1">-</h3>
+
+          <!-- Gráfica -->
+          <div class="modern-card p-5 w-full lg:w-64 flex flex-col items-center justify-center">
+             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider w-full mb-3 text-center">Progreso</h3>
+             <div class="relative w-28 h-28">
+                 <canvas id="statusChart"></canvas>
+             </div>
           </div>
         </div>
 
-        <!-- Layout Gráfica + Filtros -->
-        <div class="flex flex-col lg:flex-row gap-4 shrink-0">
-            <div class="glass p-4 w-full lg:w-1/3 flex flex-col items-center justify-center">
-                <h3 class="text-sm font-bold text-slate-700 w-full mb-2">Progreso General</h3>
-                <div class="relative w-32 h-32">
-                    <canvas id="statusChart"></canvas>
-                </div>
+        <!-- Fila 2: Filtros (Caja Roja de tu referencia) -->
+        <div class="modern-card p-3 flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
+            <!-- Tabs movidos aquí para centralizar controles -->
+            <div class="flex bg-slate-50 p-1 rounded-xl w-full md:w-auto">
+              <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all">Mis Oficios</button>
+              <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all">Todos</button>
             </div>
             
-            <div class="glass p-4 w-full lg:w-2/3 flex flex-col justify-end gap-3">
-                <h3 class="text-sm font-bold text-slate-700">Filtros de Búsqueda</h3>
-                <div class="flex gap-3">
-                    <input type="text" id="searchInp" onkeyup="renderizarTabla()" placeholder="Buscar negocio..." class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    <select id="statusFilter" onchange="renderizarTabla()" class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <option value="Todos">Todos los Estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Por Responder">Por Responder</option>
-                        <option value="Por Recoger">Por Recoger</option>
-                        <option value="Donado">Donado</option>
-                    </select>
+            <div class="flex flex-1 w-full md:w-auto gap-3 justify-end">
+                <div class="relative w-full md:max-w-xs">
+                    <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="searchInp" onkeyup="renderizarTabla()" placeholder="Buscar negocio..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-200 focus:ring-2 focus:ring-indigo-100 outline-none transition-all">
                 </div>
+                <select id="statusFilter" onchange="renderizarTabla()" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all cursor-pointer">
+                    <option value="Todos">Todos los Estados</option>
+                    <option value="Pendiente">Pendientes</option>
+                    <option value="Por Responder">Por Responder</option>
+                    <option value="Por Recoger">Por Recoger</option>
+                    <option value="Donado">Donados</option>
+                </select>
             </div>
         </div>
 
-        <!-- Main Table -->
-        <div class="glass flex-1 flex flex-col overflow-hidden">
-          <div class="overflow-y-auto flex-1 p-0">
-            <table class="w-full text-left border-collapse relative">
-              <thead class="sticky top-0 bg-slate-50 z-10 shadow-sm">
-                <tr class="text-slate-500 text-xs uppercase tracking-wider">
-                  <th class="p-4 font-bold">Negocio / Persona</th>
-                  <th class="p-4 font-bold">Carpeta</th>
-                  <th class="p-4 font-bold">Estado Actual</th>
-                  <th class="p-4 font-bold text-right">Acción</th>
+        <!-- Fila 3: Tabla Principal (Caja Verde de tu referencia) -->
+        <div class="modern-card flex-1 flex flex-col overflow-hidden">
+          <div class="overflow-y-auto flex-1 p-2">
+            <table class="w-full text-left border-collapse">
+              <thead class="sticky top-0 bg-white z-10">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100">Negocio / Persona</th>
+                  <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100">Carpeta</th>
+                  <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100">Estado de Tarea</th>
+                  <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-right">Acción</th>
                 </tr>
               </thead>
-              <tbody id="tablaOficiosBody" class="text-sm divide-y divide-slate-100">
-                <!-- Render dinámico -->
+              <tbody id="tablaOficiosBody" class="divide-y divide-slate-50/50">
+                <!-- Render dinámico JS -->
               </tbody>
             </table>
             <div id="tablaLoader" class="p-10 flex justify-center hidden"><div class="loader"></div></div>
@@ -141,52 +181,52 @@
         </div>
       </div>
 
-      <!-- Columna Derecha: Notificaciones y Citas -->
-      <div class="w-full lg:w-80 flex flex-col gap-4 overflow-hidden shrink-0">
-        <div class="glass h-full flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    Alertas y Citas
-                </h2>
-                <span id="badgeAlerts" class="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-1 rounded-full">0</span>
+      <!-- COLUMNA DERECHA: Notificaciones (Caja Azul de tu referencia) -->
+      <div class="w-full xl:w-[340px] flex flex-col shrink-0 overflow-hidden">
+        <div class="modern-card h-full flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+                <div>
+                  <h2 class="font-extrabold text-slate-800 text-lg leading-tight">Alertas Activas</h2>
+                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Seguimiento de Fechas</p>
+                </div>
+                <span id="badgeAlerts" class="bg-rose-50 text-rose-600 text-xs font-black px-2.5 py-1 rounded-full border border-rose-100">0</span>
             </div>
-            <div id="alertsContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
-                <!-- Notificaciones renderizadas aquí -->
-                <p class="text-sm text-slate-400 text-center mt-10 italic">Cargando alertas...</p>
+            
+            <div id="alertsContainer" class="flex-1 overflow-y-auto p-5 space-y-3 bg-[#fafcfc]">
+                <!-- Notificaciones renderizadas aquí con estilo "Soft" -->
+                <p class="text-sm text-slate-400 text-center mt-10 font-medium">Cargando datos...</p>
             </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- MODAL: REGISTRO DE SEGUIMIENTO COMPLETO -->
-  <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-2xl max-h-[95vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+  <!-- MODAL: REGISTRO DE SEGUIMIENTO (Mantenido funcional, mejorado visualmente) -->
+  <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="modern-card w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden shadow-2xl border-none">
       
-      <!-- Cabecera Modal -->
-      <div class="p-5 border-b border-slate-100 flex justify-between items-start bg-slate-50">
+      <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-white">
         <div>
-          <div class="flex items-center gap-2 mb-1">
-             <span id="modalOficioCarpeta" class="text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded"></span>
-             <span id="modalCurrentStatus" class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 px-2 py-0.5 rounded"></span>
+          <div class="flex items-center gap-2 mb-2">
+             <span id="modalOficioCarpeta" class="text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"></span>
+             <span id="modalCurrentStatus" class="text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg"></span>
           </div>
-          <h2 id="modalOficioName" class="text-xl font-bold text-slate-800">Cargando...</h2>
+          <h2 id="modalOficioName" class="text-2xl font-extrabold text-slate-800">Cargando...</h2>
         </div>
-        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-200/50 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors">✕</button>
       </div>
       
-      <!-- Cuerpo: Historial Corto -->
-      <div class="p-5 overflow-y-auto h-48 bg-slate-50/30 border-b border-slate-100">
-        <h3 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">Historial Reciente</h3>
-        <div id="historialTimeline" class="space-y-3"></div>
+      <div class="p-6 overflow-y-auto h-48 bg-[#fafcfc] border-b border-slate-100 inset-shadow">
+        <h3 class="text-[11px] font-extrabold text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Historial Reciente
+        </h3>
+        <div id="historialTimeline" class="space-y-4 border-l-2 border-slate-100 pl-4 ml-2"></div>
       </div>
 
-      <!-- Footer: Formulario Interactivo -->
-      <div class="p-5 bg-white space-y-4">
+      <div class="p-6 bg-white space-y-5">
         <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">1. Resultado de la visita/llamada</label>
-            <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">1. Resultado de gestión</label>
+            <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 outline-none font-bold text-slate-700 cursor-pointer transition-all">
                 <option value="Pendiente">Solo Seguimiento (Sigue Pendiente)</option>
                 <option value="Por Responder">Pidieron tiempo - Nos darán una respuesta</option>
                 <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger donación</option>
@@ -195,18 +235,18 @@
         </div>
 
         <div id="dateContainer" class="hidden animate-fade-in">
-            <label class="block text-xs font-bold text-indigo-500 uppercase tracking-wide mb-2">¿Para qué fecha acordaron?</label>
-            <input type="date" id="modalFecha" class="w-full px-4 py-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-700 font-bold">
+            <label class="block text-[11px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">2. ¿Para qué fecha acordaron?</label>
+            <input type="date" id="modalFecha" class="w-full px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-200 outline-none text-indigo-700 font-bold transition-all">
         </div>
 
         <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">2. Comentarios / Notas</label>
-            <textarea id="nuevoComentario" rows="2" placeholder="Ej: Hablé con el dueño, dijo que..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-sm"></textarea>
+            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Comentarios adicionales</label>
+            <textarea id="nuevoComentario" rows="2" placeholder="Ej: Hablé con el dueño, dijo que..." class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-100 outline-none resize-none text-sm font-medium transition-all"></textarea>
         </div>
 
         <div class="pt-2">
-          <button id="btnGuardarAvance" onclick="guardarAccion()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/20 flex justify-center items-center">
-            Registrar Avance
+          <button id="btnGuardarAvance" onclick="guardarAccion()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-800/20 flex justify-center items-center">
+            Guardar Avance
           </button>
         </div>
       </div>
@@ -215,9 +255,9 @@
 
   <script>
     // ==========================================
-    // CONFIGURACIÓN API
+    // CONFIGURACIÓN API (Manten tu URL aquí)
     // ==========================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; // Reemplaza esto
+    const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
 
     // Variables Globales
     let currentUser = null;
@@ -248,7 +288,7 @@
       btnText.textContent = "Verificando..."; loader.classList.remove('hidden'); errorMsg.classList.add('hidden');
       const response = await apiRequest({ action: 'login', username: user, password: pass });
       
-      btnText.textContent = "Ingresar al Sistema"; loader.classList.add('hidden');
+      btnText.textContent = "Iniciar Sesión"; loader.classList.add('hidden');
 
       if(response.success) {
         currentUser = response.user;
@@ -263,7 +303,7 @@
 
     function cerrarSesion() { location.reload(); }
 
-    // --- CARGA DE DATOS PRINCIPALES ---
+    // --- CARGA DE DATOS ---
     async function cargarDataGeneral() {
       document.getElementById('tablaLoader').classList.remove('hidden');
       document.getElementById('tablaOficiosBody').innerHTML = '';
@@ -277,23 +317,22 @@
       }
     }
 
-    // --- LÓGICA DE FILTROS ---
     function aplicarFiltroCarpeta(tipo) {
       activeFilterCarpeta = tipo;
       const btnMis = document.getElementById('btnFiltroMis');
       const btnTodos = document.getElementById('btnFiltroTodos');
       
       if(tipo === 'mis'){
-        btnMis.className = "px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all";
-        btnTodos.className = "px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+        btnMis.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
+        btnTodos.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
       } else {
-        btnTodos.className = "px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all";
-        btnMis.className = "px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+        btnTodos.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
+        btnMis.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
       }
       renderizarTabla();
     }
 
-    // --- RENDERIZADO UX Y CÁLCULOS ---
+    // --- RENDERIZADO UX & DISEÑO DE TAGS ---
     function renderizarTabla() {
       const tbody = document.getElementById('tablaOficiosBody');
       const searchInp = document.getElementById('searchInp').value.toLowerCase();
@@ -302,44 +341,50 @@
       tbody.innerHTML = '';
       
       let filteredOficios = currentOficios.filter(oficio => {
-        // Filtro 1: Carpeta
         const esMio = currentUser.carpetas.includes(oficio.carpeta.toString());
         if(activeFilterCarpeta === 'mis' && !esMio && !currentUser.carpetas.includes('Libre')) return false;
-        
-        // Filtro 2: Búsqueda Texto
         if(searchInp && !oficio.negocio.toLowerCase().includes(searchInp) && !oficio.carpeta.toString().includes(searchInp)) return false;
-        
-        // Filtro 3: Estado
         if(statusFilter !== 'Todos' && oficio.estado !== statusFilter) return false;
-        
         return true;
       });
 
-      // Cálculos para Dashboard KPIs (Basado en la vista filtrada actual o total)
       actualizarDashboardStats(filteredOficios);
       generarNotificaciones(filteredOficios);
 
       if (filteredOficios.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400 font-medium italic">No se encontraron oficios.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold text-sm">No se encontraron oficios con estos filtros.</td></tr>`;
         return;
       }
 
       filteredOficios.forEach(oficio => {
-        // Estilos visuales de Estado
-        let badgeStyle = "bg-amber-100 text-amber-700"; // Pendiente
-        if(oficio.estado === 'Donado') badgeStyle = "bg-emerald-100 text-emerald-700 border border-emerald-200";
-        else if(oficio.estado === 'Por Recoger') badgeStyle = "bg-sky-100 text-sky-700";
-        else if(oficio.estado === 'Por Responder') badgeStyle = "bg-purple-100 text-purple-700";
+        // DISEÑO DE TAGS (Ref 2) - Estilo Píldora suave con puntito
+        let bgStyle = "bg-amber-50 text-amber-600"; 
+        let dotColor = "bg-amber-400";
+        
+        if(oficio.estado === 'Donado') { 
+            bgStyle = "bg-emerald-50 text-emerald-600"; 
+            dotColor = "bg-emerald-400"; 
+        } else if(oficio.estado === 'Por Recoger') { 
+            bgStyle = "bg-blue-50 text-blue-600"; 
+            dotColor = "bg-blue-400"; 
+        } else if(oficio.estado === 'Por Responder') { 
+            bgStyle = "bg-purple-50 text-purple-600"; 
+            dotColor = "bg-purple-400"; 
+        }
+
+        const tagHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide ${bgStyle}"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${oficio.estado}</span>`;
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition-colors group cursor-pointer border-b border-slate-50';
+        tr.className = 'hover:bg-slate-50 transition-colors group cursor-pointer';
         tr.onclick = () => abrirModal(oficio);
         
         tr.innerHTML = `
-          <td class="p-4 font-semibold text-slate-800">${oficio.negocio}</td>
-          <td class="p-4 text-slate-500 font-medium text-xs uppercase"><span class="bg-slate-100 px-2 py-1 rounded">Carpeta ${oficio.carpeta}</span></td>
-          <td class="p-4"><span class="px-3 py-1 rounded-full text-[11px] font-bold tracking-wide ${badgeStyle}">${oficio.estado}</span></td>
-          <td class="p-4 text-right"><button class="text-indigo-600 hover:text-indigo-800 font-bold text-sm bg-indigo-50 px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Registrar</button></td>
+          <td class="px-6 py-4 font-bold text-slate-800 text-sm">${oficio.negocio}</td>
+          <td class="px-6 py-4 text-slate-500 font-bold text-xs"><span class="bg-slate-100 px-2.5 py-1 rounded-lg">Fólder ${oficio.carpeta}</span></td>
+          <td class="px-6 py-4">${tagHTML}</td>
+          <td class="px-6 py-4 text-right">
+             <button class="text-indigo-600 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">Editar</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -358,7 +403,7 @@
       document.getElementById('kpiAccion').textContent = accion;
       document.getElementById('kpiDonados').textContent = donados;
 
-      // Actualizar Gráfica Chart.js
+      // Gráfica minimalista
       const ctx = document.getElementById('statusChart').getContext('2d');
       if(chartInstance) chartInstance.destroy();
       
@@ -368,16 +413,16 @@
           labels: ['Pendiente', 'Acción Req.', 'Donado'],
           datasets: [{
             data: [pendientes, accion, donados],
-            backgroundColor: ['#fbbf24', '#38bdf8', '#10b981'],
+            backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'],
             borderWidth: 0,
             hoverOffset: 4
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '78%' }
       });
     }
 
-    // --- SISTEMA DE NOTIFICACIONES Y FECHAS ---
+    // --- SISTEMA DE NOTIFICACIONES (Ref 1) ---
     function generarNotificaciones(data) {
       const alertsContainer = document.getElementById('alertsContainer');
       const badgeAlerts = document.getElementById('badgeAlerts');
@@ -391,64 +436,56 @@
 
       data.forEach(oficio => {
         if((oficio.estado === 'Por Recoger' || oficio.estado === 'Por Responder') && oficio.fechaCita) {
-          // Parsear fecha de DB (formato string)
           const citaDate = new Date(oficio.fechaCita);
           citaDate.setHours(0,0,0,0);
-          
-          const diffTime = citaDate - hoy;
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          if(diffDays <= 3) { // Mostrar si ya pasó, o si falta 3 días o menos
-            alertas.push({ oficio: oficio, diffDays: diffDays });
-          }
+          const diffDays = Math.ceil((citaDate - hoy) / (1000 * 60 * 60 * 24));
+          if(diffDays <= 3) alertas.push({ oficio: oficio, diffDays: diffDays });
         }
       });
 
-      // Ordenar por más urgente (fechas menores primero)
       alertas.sort((a,b) => a.diffDays - b.diffDays);
 
       if(alertas.length === 0) {
-        alertsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center mt-10 italic">Todo al día. No hay alertas.</p>`;
+        alertsContainer.innerHTML = `<div class="text-center py-10"><p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Sin Alertas Activas</p></div>`;
         badgeAlerts.textContent = "0";
         return;
       }
 
       alertas.forEach(alerta => {
         alertCount++;
-        let colorTheme = "bg-sky-50 border-sky-200 text-sky-800";
-        let iconTheme = "bg-sky-200 text-sky-700";
+        
+        // Estilos inspirados en la Ref 1 (Fondos pastel, puntos vibrantes)
+        let bgCard = "bg-blue-50/50";
+        let dotColor = "bg-blue-500";
+        let textHighlight = "text-blue-600";
         let timeMsg = `En ${alerta.diffDays} días`;
 
         if(alerta.diffDays < 0) {
-          colorTheme = "bg-rose-50 border-rose-200 text-rose-800";
-          iconTheme = "bg-rose-200 text-rose-700";
+          bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600";
           timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} días`;
         } else if (alerta.diffDays === 0) {
-          colorTheme = "bg-amber-50 border-amber-200 text-amber-900";
-          iconTheme = "bg-amber-300 text-amber-800";
-          timeMsg = "¡Para Hoy!";
+          bgCard = "bg-amber-50/50"; dotColor = "bg-amber-500"; textHighlight = "text-amber-600";
+          timeMsg = "¡Hoy!";
         } else if (alerta.diffDays === 1) {
           timeMsg = "Para Mañana";
         }
 
-        const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger Donación' : 'Llamar/Respuesta';
+        const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger' : 'Llamar';
 
         alertsContainer.innerHTML += `
-          <div onclick="abrirModalPorId('${alerta.oficio.id}')" class="p-3 rounded-xl border cursor-pointer hover:shadow-md transition-all ${colorTheme}">
-            <div class="flex justify-between items-start mb-1">
-              <span class="text-xs font-bold uppercase tracking-wide flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full ${iconTheme}"></span> ${tipoAccion}
-              </span>
-              <span class="text-[10px] font-black uppercase bg-white/50 px-2 py-0.5 rounded">${timeMsg}</span>
+          <div onclick="abrirModalPorId('${alerta.oficio.id}')" class="p-4 rounded-2xl cursor-pointer hover:scale-[1.02] transition-transform ${bgCard} flex gap-3 border border-slate-100">
+            <div class="w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0 shadow-sm"></div>
+            <div class="flex-1">
+               <p class="font-extrabold text-sm text-slate-800 leading-tight mb-1">${alerta.oficio.negocio}</p>
+               <p class="text-[11px] font-bold ${textHighlight} uppercase tracking-wider">${tipoAccion} • ${timeMsg}</p>
             </div>
-            <p class="font-bold text-sm leading-tight">${alerta.oficio.negocio}</p>
           </div>
         `;
       });
       badgeAlerts.textContent = alertCount;
     }
 
-    // --- LÓGICA DEL MODAL INTERACTIVO ---
+    // --- LÓGICA DEL MODAL ---
     let oficioSeleccionado = null;
 
     function abrirModalPorId(id) {
@@ -459,10 +496,9 @@
     function abrirModal(oficio) {
       oficioSeleccionado = oficio;
       document.getElementById('modalOficioName').textContent = oficio.negocio;
-      document.getElementById('modalOficioCarpeta').textContent = 'Carpeta ' + oficio.carpeta;
+      document.getElementById('modalOficioCarpeta').textContent = 'Fólder ' + oficio.carpeta;
       document.getElementById('modalCurrentStatus').textContent = oficio.estado;
       
-      // Reset Form
       document.getElementById('nuevoComentario').value = '';
       document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : 'Pendiente';
       document.getElementById('modalFecha').value = '';
@@ -477,32 +513,29 @@
     function toggleDateInput() {
       const estado = document.getElementById('modalNuevoEstado').value;
       const dateContainer = document.getElementById('dateContainer');
-      if (estado === 'Por Responder' || estado === 'Por Recoger') {
-          dateContainer.classList.remove('hidden');
-      } else {
-          dateContainer.classList.add('hidden');
-          document.getElementById('modalFecha').value = '';
-      }
+      if (estado === 'Por Responder' || estado === 'Por Recoger') dateContainer.classList.remove('hidden');
+      else { dateContainer.classList.add('hidden'); document.getElementById('modalFecha').value = ''; }
     }
 
     async function cargarHistorial(idOficio) {
       const timeline = document.getElementById('historialTimeline');
-      timeline.innerHTML = '<div class="flex justify-center p-4"><div class="loader"></div></div>';
+      timeline.innerHTML = '<div class="flex justify-center py-4"><div class="loader"></div></div>';
       const response = await apiRequest({ action: 'getDetalle', idOficio: idOficio });
       
       if(response.success && response.historial.length > 0) {
         timeline.innerHTML = response.historial.map(h => `
-          <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm relative">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-[11px] font-black text-slate-600">${h.usuario}</span>
-              <span class="text-[10px] text-slate-400 font-medium">${h.fecha}</span>
+          <div class="relative pb-4">
+            <span class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-[#fafcfc]"></span>
+            <div class="flex justify-between items-baseline mb-0.5">
+              <span class="text-xs font-extrabold text-slate-700">${h.usuario}</span>
+              <span class="text-[10px] text-slate-400 font-bold">${h.fecha}</span>
             </div>
-            <p class="text-xs text-slate-600">${h.comentario}</p>
-            <div class="mt-2 text-[10px] font-bold text-indigo-500 uppercase">${h.tipo}</div>
+            <p class="text-xs text-slate-600 font-medium">${h.comentario}</p>
+            <div class="mt-1 text-[10px] font-extrabold text-indigo-500 uppercase tracking-wider">${h.tipo}</div>
           </div>
         `).join('');
       } else {
-        timeline.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay historial.</p>';
+        timeline.innerHTML = '<p class="text-xs font-bold text-slate-400 text-center uppercase tracking-widest py-4">Sin historial previo</p>';
       }
     }
 
@@ -528,11 +561,11 @@
         fechaCita: fechaCita
       });
 
-      btn.textContent = "Registrar Avance"; btn.disabled = false;
+      btn.textContent = "Guardar Avance"; btn.disabled = false;
 
       if(response.success) {
         cerrarModal();
-        cargarDataGeneral(); // Recarga toda la data para actualizar Dashboard y Alertas en tiempo real
+        cargarDataGeneral(); 
       } else {
         alert("Error: " + response.message);
       }
