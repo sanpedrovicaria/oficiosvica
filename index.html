@@ -83,13 +83,17 @@
             <span id="badgeAlertsMobile" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white">0</span>
         </button>
 
-        <!-- Bloque de Usuario y Tombola Team (Mantenido intacto) -->
-        <div class="text-right hidden sm:block">
-            <p id="userNameDisplay" class="text-sm font-bold text-slate-800 leading-none"></p>
-            <p class="text-xs text-slate-400 font-medium mt-1">Tómbola Team</p>
+        <!-- Bloque de Usuario y Tombola Team -->
+        <div class="text-right hidden sm:flex flex-col justify-center">
+            <p id="userNameDisplay" class="text-sm font-extrabold text-slate-800 leading-none"></p>
+            <p class="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-wide">Tómbola Team</p>
         </div>
+        
         <div class="w-px h-8 bg-slate-200 hidden sm:block"></div>
-        <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">Salir</button>
+        
+        <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors bg-white px-6 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 shadow-sm flex items-center">
+            Salir
+        </button>
       </div>
     </header>
 
@@ -156,11 +160,11 @@
       <!-- COLUMNA DERECHA: ALERTAS (Visible SIEMPRE en Desktop con lg:) -->
       <div id="mobileAlertsWrapper" class="hidden lg:flex fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:relative lg:inset-auto lg:bg-transparent lg:z-auto w-full lg:w-[340px] flex-col shrink-0 overflow-hidden items-center justify-end lg:justify-start sm:p-4 lg:p-0 transition-all">
         
-        <div class="modern-card w-full h-[85vh] lg:h-full max-w-lg lg:max-w-none flex flex-col overflow-hidden shadow-2xl lg:shadow-none rounded-t-3xl lg:rounded-2xl border-none lg:border-solid animate-slide-up lg:animate-none">
+        <div class="modern-card w-full h-[85vh] lg:h-full max-w-lg lg:max-w-none flex flex-col overflow-hidden shadow-2xl lg:shadow-sm rounded-t-3xl lg:rounded-[24px] border-none lg:border lg:border-slate-100 animate-slide-up lg:animate-none">
             <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
                 <div>
-                  <h2 class="font-extrabold text-slate-800 text-lg leading-tight">Alertas Activas</h2>
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Seguimiento de Fechas</p>
+                  <h2 class="font-extrabold text-slate-800 text-[17px] leading-tight">Alertas Activas</h2>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Seguimiento de Fechas</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="badgeAlerts" class="bg-rose-50 text-rose-600 text-xs font-black px-2.5 py-1 rounded-full border border-rose-100">0</span>
@@ -169,13 +173,13 @@
                 </div>
             </div>
             
-            <div id="alertsContainer" class="flex-1 overflow-y-auto p-5 space-y-3 bg-[#fafcfc]">
-                <p class="text-sm text-slate-400 text-center mt-10 font-medium">Cargando datos...</p>
+            <div id="alertsContainer" class="flex-1 overflow-y-auto p-5 bg-[#fafcfc]">
+                <div class="h-full flex items-center justify-center min-h-[300px]">
+                    <p class="text-[11px] text-slate-400 font-extrabold uppercase tracking-widest text-center">Cargando datos...</p>
+                </div>
             </div>
         </div>
       </div>
-    </main>
-  </div>
 
   <!-- MODAL: REGISTRO DE SEGUIMIENTO -->
   <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -423,11 +427,20 @@
       alertas.sort((a,b) => a.diffDays - b.diffDays);
 
       if(alertas.length === 0) {
-        alertsContainer.innerHTML = `<div class="text-center py-10"><p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Sin Alertas Activas</p></div>`;
+        // Resetea las clases para centrar el mensaje vacío
+        alertsContainer.className = "flex-1 overflow-y-auto p-5 bg-[#fafcfc]";
+        alertsContainer.innerHTML = `
+            <div class="h-full flex items-center justify-center min-h-[300px]">
+                <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Sin Alertas Activas</p>
+            </div>
+        `;
         badgeAlerts.textContent = "0";
         if(document.getElementById('badgeAlertsMobile')) document.getElementById('badgeAlertsMobile').textContent = "0";
         return;
       }
+
+      // Si SÍ hay alertas, aseguramos que tenga el espacio entre las tarjetas
+      alertsContainer.className = "flex-1 overflow-y-auto p-5 space-y-3 bg-[#fafcfc]";
 
       alertas.forEach(alerta => {
         alertCount++;
