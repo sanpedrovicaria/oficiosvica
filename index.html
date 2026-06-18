@@ -66,7 +66,7 @@
   <!-- VISTA: DASHBOARD -->
   <div id="dashboardView" class="hidden flex flex-col h-full">
     
-    <!-- Topbar: ADAPTADO PARA MÓVIL (Con botón de campana) -->
+    <!-- Topbar -->
     <header class="px-5 lg:px-8 py-4 flex justify-between items-center shrink-0 bg-white/60 backdrop-blur-md border-b border-slate-100/60 z-10">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/20 shrink-0">O</div>
@@ -77,12 +77,13 @@
       </div>
       
       <div class="flex items-center gap-4 lg:gap-5">
-        <!-- BOTÓN EXCLUSIVO MÓVIL: Muestra las alertas -->
-        <button onclick="document.getElementById('mobileAlertsWrapper').classList.remove('hidden')" class="xl:hidden relative p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
+        <!-- BOTÓN MÓVIL/TABLET: Muestra las alertas (Oculto en Desktop lg:) -->
+        <button onclick="document.getElementById('mobileAlertsWrapper').classList.remove('hidden')" class="lg:hidden relative p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
             <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
             <span id="badgeAlertsMobile" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white">0</span>
         </button>
 
+        <!-- Bloque de Usuario y Tombola Team (Mantenido intacto) -->
         <div class="text-right hidden sm:block">
             <p id="userNameDisplay" class="text-sm font-bold text-slate-800 leading-none"></p>
             <p class="text-xs text-slate-400 font-medium mt-1">Tómbola Team</p>
@@ -92,11 +93,11 @@
       </div>
     </header>
 
-    <!-- MAIN: ADAPTADO PARA PERMITIR SCROLL EN MÓVIL (overflow-y-auto xl:overflow-hidden) -->
-    <main class="flex-1 overflow-y-auto xl:overflow-hidden flex flex-col xl:flex-row w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-6 gap-6">
+    <!-- MAIN: Flex row en lg: para mantener panel lateral en Desktop -->
+    <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-6 gap-6">
       
       <!-- COLUMNA IZQUIERDA -->
-      <div class="flex-1 flex flex-col gap-6 xl:overflow-hidden shrink-0 xl:shrink">
+      <div class="flex-1 flex flex-col gap-6 lg:overflow-hidden shrink-0 lg:shrink">
         
         <div class="flex flex-col lg:flex-row gap-6 shrink-0">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
@@ -131,8 +132,8 @@
             </div>
         </div>
 
-        <!-- TABLA: min-h-[400px] garantiza que no desaparezca en celulares -->
-        <div class="modern-card flex-1 flex flex-col overflow-hidden min-h-[400px] xl:min-h-0">
+        <!-- TABLA -->
+        <div class="modern-card flex-1 flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
           <div class="overflow-y-auto flex-1 p-2">
             <table class="w-full text-left border-collapse min-w-[600px]">
               <thead class="sticky top-0 bg-white z-10">
@@ -152,11 +153,10 @@
         </div>
       </div>
 
-      <!-- COLUMNA DERECHA: ALERTAS (Convertida en Slide-Up Modal para Móvil) -->
-      <div id="mobileAlertsWrapper" class="hidden xl:flex fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm xl:relative xl:inset-auto xl:bg-transparent xl:z-auto w-full xl:w-[340px] flex-col shrink-0 overflow-hidden items-center justify-end xl:justify-start sm:p-4 xl:p-0 transition-all">
+      <!-- COLUMNA DERECHA: ALERTAS (Visible SIEMPRE en Desktop con lg:) -->
+      <div id="mobileAlertsWrapper" class="hidden lg:flex fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:relative lg:inset-auto lg:bg-transparent lg:z-auto w-full lg:w-[340px] flex-col shrink-0 overflow-hidden items-center justify-end lg:justify-start sm:p-4 lg:p-0 transition-all">
         
-        <!-- En móvil: redondeado arriba, animado. En PC: tarjeta normal -->
-        <div class="modern-card w-full h-[85vh] xl:h-full max-w-lg xl:max-w-none flex flex-col overflow-hidden shadow-2xl xl:shadow-none rounded-t-3xl xl:rounded-2xl border-none xl:border-solid animate-slide-up xl:animate-none">
+        <div class="modern-card w-full h-[85vh] lg:h-full max-w-lg lg:max-w-none flex flex-col overflow-hidden shadow-2xl lg:shadow-none rounded-t-3xl lg:rounded-2xl border-none lg:border-solid animate-slide-up lg:animate-none">
             <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
                 <div>
                   <h2 class="font-extrabold text-slate-800 text-lg leading-tight">Alertas Activas</h2>
@@ -164,13 +164,12 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="badgeAlerts" class="bg-rose-50 text-rose-600 text-xs font-black px-2.5 py-1 rounded-full border border-rose-100">0</span>
-                    <!-- Botón Cerrar (Solo Móvil) -->
-                    <button onclick="document.getElementById('mobileAlertsWrapper').classList.add('hidden')" class="xl:hidden text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+                    <!-- Botón Cerrar (Solo Móvil/Tablet) -->
+                    <button onclick="document.getElementById('mobileAlertsWrapper').classList.add('hidden')" class="lg:hidden text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
                 </div>
             </div>
             
             <div id="alertsContainer" class="flex-1 overflow-y-auto p-5 space-y-3 bg-[#fafcfc]">
-                <!-- Notificaciones renderizadas aquí -->
                 <p class="text-sm text-slate-400 text-center mt-10 font-medium">Cargando datos...</p>
             </div>
         </div>
@@ -178,7 +177,7 @@
     </main>
   </div>
 
-  <!-- MODAL: REGISTRO DE SEGUIMIENTO (Incluye la Lógica de Donaciones de tu versión anterior) -->
+  <!-- MODAL: REGISTRO DE SEGUIMIENTO -->
   <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
     <div class="modern-card w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden shadow-2xl border-none">
       
