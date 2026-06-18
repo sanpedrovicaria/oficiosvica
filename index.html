@@ -2,112 +2,212 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Sistema Parroquia Tracker</title>
+  <title>Kermesse Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
-    .glass-panel { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+    body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
+    .glass { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #e2e8f0;}
     .hidden { display: none !important; }
-    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4F46E5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4F46E5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* Scrollbar custom para áreas pequeñas */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
 
   <!-- VISTA: LOGIN -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center p-4">
-    <div class="glass-panel p-8 w-full max-w-md">
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 absolute inset-0 z-50">
+    <div class="bg-white p-10 rounded-2xl w-full max-w-md shadow-2xl">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-indigo-600 mb-2">Parroquia Tracker</h1>
-        <p class="text-slate-500 text-sm">Ingresa para gestionar los oficios</p>
+        <h1 class="text-3xl font-bold text-indigo-600 mb-2">Oficios Track</h1>
+        <p class="text-slate-500 text-sm">Panel de Gestión y Seguimiento</p>
       </div>
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Usuario</label>
-          <input type="text" id="username" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Usuario</label>
+          <input type="text" id="username" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-          <input type="password" id="password" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" onkeypress="if(event.key === 'Enter') intentarLogin()">
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Contraseña</label>
+          <input type="password" id="password" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" onkeypress="if(event.key === 'Enter') intentarLogin()">
         </div>
-        <button onclick="intentarLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition-colors flex justify-center items-center">
-          <span id="loginBtnText">Entrar</span>
-          <div id="loginLoader" class="loader hidden ml-2"></div>
+        <button onclick="intentarLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex justify-center items-center">
+          <span id="loginBtnText">Ingresar al Sistema</span>
+          <div id="loginLoader" class="loader hidden ml-2 border-white border-top-indigo-200"></div>
         </button>
-        <p id="loginError" class="text-red-500 text-sm text-center hidden"></p>
+        <p id="loginError" class="text-rose-500 text-sm text-center font-medium hidden"></p>
       </div>
     </div>
   </div>
 
-  <!-- VISTA: DASHBOARD PRINCIPAL -->
-  <div id="dashboardView" class="hidden min-h-screen flex flex-col">
-    <!-- Navbar -->
-    <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-6">
-        <h1 class="text-xl font-bold text-indigo-600">Parroquia Tracker</h1>
-        <nav class="hidden md:flex gap-4">
-          <button id="btnFiltroMis" onclick="cargarOficios('mis')" class="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all">Mis Carpetas</button>
-          <button id="btnFiltroTodos" onclick="cargarOficios('todos')" class="text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent">Todos los Oficios</button>
+  <!-- VISTA: DASHBOARD -->
+  <div id="dashboardView" class="hidden flex flex-col h-full">
+    
+    <!-- Topbar -->
+    <header class="bg-white px-6 py-4 flex justify-between items-center border-b border-slate-200 shrink-0">
+      <div class="flex items-center gap-8">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">O</div>
+            <h1 class="text-xl font-bold text-slate-800">Oficios<span class="text-indigo-600">Track</span></h1>
+        </div>
+        <nav class="hidden md:flex gap-2 bg-slate-100 p-1 rounded-lg">
+          <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all">Mis Oficios</button>
+          <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all">Todos</button>
         </nav>
       </div>
       <div class="flex items-center gap-4">
-        <span id="userNameDisplay" class="text-sm font-medium text-slate-600"></span>
-        <button onclick="cerrarSesion()" class="text-sm bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md transition font-medium">Salir</button>
+        <div class="text-right hidden sm:block">
+            <p id="userNameDisplay" class="text-sm font-bold text-slate-700 leading-tight"></p>
+            <p class="text-xs text-slate-400 font-medium">Tómbola Team</p>
+        </div>
+        <button onclick="cerrarSesion()" class="text-sm border border-slate-200 hover:bg-slate-50 text-slate-600 px-4 py-2 rounded-lg transition-all font-semibold">Cerrar Sesión</button>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-8 max-w-7xl w-full mx-auto">
-      <div class="glass-panel overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-          <h2 class="text-lg font-semibold text-slate-800">Lista de Oficios</h2>
+    <!-- Contenido Principal (Grid Layout) -->
+    <main class="flex-1 overflow-hidden flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto p-4 lg:p-6 gap-6">
+      
+      <!-- Columna Izquierda: KPIs, Gráfica y Tabla -->
+      <div class="flex-1 flex flex-col overflow-hidden gap-6">
+        
+        <!-- KPIs Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+          <div class="glass p-4 border-l-4 border-indigo-500">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Total Asignados</p>
+            <h3 id="kpiTotal" class="text-2xl font-black text-slate-800 mt-1">-</h3>
+          </div>
+          <div class="glass p-4 border-l-4 border-amber-400">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Pendientes</p>
+            <h3 id="kpiPendientes" class="text-2xl font-black text-slate-800 mt-1">-</h3>
+          </div>
+          <div class="glass p-4 border-l-4 border-sky-400">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Por Recoger/Resp.</p>
+            <h3 id="kpiAccion" class="text-2xl font-black text-slate-800 mt-1">-</h3>
+          </div>
+          <div class="glass p-4 border-l-4 border-emerald-500">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wide">Donados 🎉</p>
+            <h3 id="kpiDonados" class="text-2xl font-black text-emerald-600 mt-1">-</h3>
+          </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-sm">
-                <th class="p-4 font-medium">Negocio / Persona</th>
-                <th class="p-4 font-medium">Carpeta</th>
-                <th class="p-4 font-medium">Estado</th>
-                <th class="p-4 font-medium text-right">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tablaOficiosBody" class="text-sm divide-y divide-slate-100">
-              <!-- Renderizado dinámico JS -->
-            </tbody>
-          </table>
-          <div id="tablaLoader" class="p-8 flex justify-center hidden"><div class="loader"></div></div>
+
+        <!-- Layout Gráfica + Filtros -->
+        <div class="flex flex-col lg:flex-row gap-4 shrink-0">
+            <div class="glass p-4 w-full lg:w-1/3 flex flex-col items-center justify-center">
+                <h3 class="text-sm font-bold text-slate-700 w-full mb-2">Progreso General</h3>
+                <div class="relative w-32 h-32">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="glass p-4 w-full lg:w-2/3 flex flex-col justify-end gap-3">
+                <h3 class="text-sm font-bold text-slate-700">Filtros de Búsqueda</h3>
+                <div class="flex gap-3">
+                    <input type="text" id="searchInp" onkeyup="renderizarTabla()" placeholder="Buscar negocio..." class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <select id="statusFilter" onchange="renderizarTabla()" class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="Todos">Todos los Estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Por Responder">Por Responder</option>
+                        <option value="Por Recoger">Por Recoger</option>
+                        <option value="Donado">Donado</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Table -->
+        <div class="glass flex-1 flex flex-col overflow-hidden">
+          <div class="overflow-y-auto flex-1 p-0">
+            <table class="w-full text-left border-collapse relative">
+              <thead class="sticky top-0 bg-slate-50 z-10 shadow-sm">
+                <tr class="text-slate-500 text-xs uppercase tracking-wider">
+                  <th class="p-4 font-bold">Negocio / Persona</th>
+                  <th class="p-4 font-bold">Carpeta</th>
+                  <th class="p-4 font-bold">Estado Actual</th>
+                  <th class="p-4 font-bold text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tablaOficiosBody" class="text-sm divide-y divide-slate-100">
+                <!-- Render dinámico -->
+              </tbody>
+            </table>
+            <div id="tablaLoader" class="p-10 flex justify-center hidden"><div class="loader"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Notificaciones y Citas -->
+      <div class="w-full lg:w-80 flex flex-col gap-4 overflow-hidden shrink-0">
+        <div class="glass h-full flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    Alertas y Citas
+                </h2>
+                <span id="badgeAlerts" class="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-1 rounded-full">0</span>
+            </div>
+            <div id="alertsContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
+                <!-- Notificaciones renderizadas aquí -->
+                <p class="text-sm text-slate-400 text-center mt-10 italic">Cargando alertas...</p>
+            </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- MODAL: SEGUIMIENTO DE OFICIO -->
-  <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
-      <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+  <!-- MODAL: REGISTRO DE SEGUIMIENTO COMPLETO -->
+  <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-2xl max-h-[95vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      
+      <!-- Cabecera Modal -->
+      <div class="p-5 border-b border-slate-100 flex justify-between items-start bg-slate-50">
         <div>
+          <div class="flex items-center gap-2 mb-1">
+             <span id="modalOficioCarpeta" class="text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded"></span>
+             <span id="modalCurrentStatus" class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 px-2 py-0.5 rounded"></span>
+          </div>
           <h2 id="modalOficioName" class="text-xl font-bold text-slate-800">Cargando...</h2>
-          <span id="modalOficioCarpeta" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded mt-1 inline-block"></span>
         </div>
-        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
+        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-200/50 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
       </div>
       
-      <!-- Historial -->
-      <div class="p-6 overflow-y-auto flex-1 bg-slate-50/50">
-        <h3 class="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Historial de Seguimiento</h3>
-        <div id="historialTimeline" class="space-y-4">
-          <!-- Renderizado dinámico -->
-        </div>
+      <!-- Cuerpo: Historial Corto -->
+      <div class="p-5 overflow-y-auto h-48 bg-slate-50/30 border-b border-slate-100">
+        <h3 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">Historial Reciente</h3>
+        <div id="historialTimeline" class="space-y-3"></div>
       </div>
 
-      <!-- Área de Input -->
-      <div class="p-6 border-t border-slate-100 bg-white">
-        <textarea id="nuevoComentario" rows="2" placeholder="Ej: Fui a visitarlos, pidieron regresar el martes..." class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none mb-4 text-sm"></textarea>
-        <div class="flex justify-end gap-3">
-          <button id="btnRegistrarAvance" onclick="guardarAccion(false)" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium px-4 py-2 rounded-lg transition-colors text-sm flex items-center">Registrar Avance</button>
-          <button id="btnRegistrarDonacion" onclick="guardarAccion(true)" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm shadow-sm shadow-green-600/20 flex items-center">¡Registrar Donación!</button>
+      <!-- Footer: Formulario Interactivo -->
+      <div class="p-5 bg-white space-y-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">1. Resultado de la visita/llamada</label>
+            <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                <option value="Pendiente">Solo Seguimiento (Sigue Pendiente)</option>
+                <option value="Por Responder">Pidieron tiempo - Nos darán una respuesta</option>
+                <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger donación</option>
+                <option value="Donado" class="font-bold text-emerald-600">🎉 ¡Donación recibida hoy!</option>
+            </select>
+        </div>
+
+        <div id="dateContainer" class="hidden animate-fade-in">
+            <label class="block text-xs font-bold text-indigo-500 uppercase tracking-wide mb-2">¿Para qué fecha acordaron?</label>
+            <input type="date" id="modalFecha" class="w-full px-4 py-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-700 font-bold">
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">2. Comentarios / Notas</label>
+            <textarea id="nuevoComentario" rows="2" placeholder="Ej: Hablé con el dueño, dijo que..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-sm"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button id="btnGuardarAvance" onclick="guardarAccion()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-indigo-600/20 flex justify-center items-center">
+            Registrar Avance
+          </button>
         </div>
       </div>
     </div>
@@ -115,52 +215,27 @@
 
   <script>
     // ==========================================
-    // CONFIGURACIÓN (REEMPLAZAR CON TU URL)
+    // CONFIGURACIÓN API
     // ==========================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; // Reemplaza esto
 
-    // Estado Global de la App
+    // Variables Globales
     let currentUser = null;
     let currentOficios = [];
-    let selectedOficioId = null;
+    let activeFilterCarpeta = 'mis';
+    let chartInstance = null;
 
-    // --- FUNCIÓN NÚCLEO PARA COMUNICACIÓN CON LA API (FETCH MODERNO) ---
-    // En Apps Script es vital enviar el Body como String sin header de Content-Type 
-    // para evadir el bloqueo de CORS OPTIONS. El experto lo sabe.
+    // --- CONEXIÓN API ---
     async function apiRequest(payload) {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        const data = await response.json();
-        return data;
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        return await response.json();
       } catch (error) {
-        console.error("Error de Red:", error);
-        return { success: false, message: "Error conectando con el servidor." };
+        console.error("Red:", error); return { success: false, message: "Error conectando con el servidor." };
       }
     }
 
-    // --- NAVEGACIÓN UX ---
-    function mostrarVista(vistaId) {
-      document.getElementById('loginView').classList.add('hidden');
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById(vistaId).classList.remove('hidden');
-    }
-
-    function actualizarEstilosFiltro(filtro) {
-      const btnMis = document.getElementById('btnFiltroMis');
-      const btnTodos = document.getElementById('btnFiltroTodos');
-      if (filtro === 'mis') {
-        btnMis.className = "text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all";
-        btnTodos.className = "text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent";
-      } else {
-        btnTodos.className = "text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all";
-        btnMis.className = "text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent";
-      }
-    }
-
-    // --- LOGIN ASÍNCRONO ---
+    // --- LOGIN ---
     async function intentarLogin() {
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
@@ -170,185 +245,296 @@
 
       if(!user || !pass) return;
 
-      // Estado UX de carga
-      btnText.textContent = "Verificando...";
-      loader.classList.remove('hidden');
-      errorMsg.classList.add('hidden');
-
+      btnText.textContent = "Verificando..."; loader.classList.remove('hidden'); errorMsg.classList.add('hidden');
       const response = await apiRequest({ action: 'login', username: user, password: pass });
-
-      btnText.textContent = "Entrar";
-      loader.classList.add('hidden');
+      
+      btnText.textContent = "Ingresar al Sistema"; loader.classList.add('hidden');
 
       if(response.success) {
         currentUser = response.user;
-        document.getElementById('userNameDisplay').textContent = "Hola, " + currentUser.nombre;
-        mostrarVista('dashboardView');
-        cargarOficios('mis');
+        document.getElementById('userNameDisplay').textContent = currentUser.nombre;
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('dashboardView').classList.remove('hidden');
+        cargarDataGeneral();
       } else {
-        errorMsg.textContent = response.message;
-        errorMsg.classList.remove('hidden');
+        errorMsg.textContent = response.message; errorMsg.classList.remove('hidden');
       }
     }
 
-    function cerrarSesion() {
-      currentUser = null;
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      mostrarVista('loginView');
-    }
+    function cerrarSesion() { location.reload(); }
 
-    // --- CARGA Y RENDERIZADO DE OFICIOS ---
-    async function cargarOficios(filtro) {
-      actualizarEstilosFiltro(filtro);
-      const tbody = document.getElementById('tablaOficiosBody');
-      const loader = document.getElementById('tablaLoader');
+    // --- CARGA DE DATOS PRINCIPALES ---
+    async function cargarDataGeneral() {
+      document.getElementById('tablaLoader').classList.remove('hidden');
+      document.getElementById('tablaOficiosBody').innerHTML = '';
       
-      tbody.innerHTML = '';
-      loader.classList.remove('hidden');
-
       const response = await apiRequest({ action: 'getOficios' });
-
-      loader.classList.add('hidden');
+      document.getElementById('tablaLoader').classList.add('hidden');
 
       if(response.success) {
         currentOficios = response.oficios;
-        renderizarTabla(filtro);
-      } else {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar datos.</td></tr>`;
+        renderizarTabla();
       }
     }
 
-    function renderizarTabla(filtro) {
-      const tbody = document.getElementById('tablaOficiosBody');
-      tbody.innerHTML = '';
+    // --- LÓGICA DE FILTROS ---
+    function aplicarFiltroCarpeta(tipo) {
+      activeFilterCarpeta = tipo;
+      const btnMis = document.getElementById('btnFiltroMis');
+      const btnTodos = document.getElementById('btnFiltroTodos');
+      
+      if(tipo === 'mis'){
+        btnMis.className = "px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all";
+        btnTodos.className = "px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+      } else {
+        btnTodos.className = "px-4 py-1.5 rounded-md text-sm font-semibold bg-white shadow-sm text-indigo-700 transition-all";
+        btnMis.className = "px-4 py-1.5 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+      }
+      renderizarTabla();
+    }
 
-      if (currentOficios.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">No hay oficios registrados.</td></tr>`;
+    // --- RENDERIZADO UX Y CÁLCULOS ---
+    function renderizarTabla() {
+      const tbody = document.getElementById('tablaOficiosBody');
+      const searchInp = document.getElementById('searchInp').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      
+      tbody.innerHTML = '';
+      
+      let filteredOficios = currentOficios.filter(oficio => {
+        // Filtro 1: Carpeta
+        const esMio = currentUser.carpetas.includes(oficio.carpeta.toString());
+        if(activeFilterCarpeta === 'mis' && !esMio && !currentUser.carpetas.includes('Libre')) return false;
+        
+        // Filtro 2: Búsqueda Texto
+        if(searchInp && !oficio.negocio.toLowerCase().includes(searchInp) && !oficio.carpeta.toString().includes(searchInp)) return false;
+        
+        // Filtro 3: Estado
+        if(statusFilter !== 'Todos' && oficio.estado !== statusFilter) return false;
+        
+        return true;
+      });
+
+      // Cálculos para Dashboard KPIs (Basado en la vista filtrada actual o total)
+      actualizarDashboardStats(filteredOficios);
+      generarNotificaciones(filteredOficios);
+
+      if (filteredOficios.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400 font-medium italic">No se encontraron oficios.</td></tr>`;
         return;
       }
 
-      currentOficios.forEach(oficio => {
-        const esMiCarpeta = currentUser.carpetas.includes(oficio.carpeta.toString());
-        if(filtro === 'mis' && !esMiCarpeta && !currentUser.carpetas.includes('Libre')) return;
-
-        const badgeColor = oficio.estado === 'Donado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700';
+      filteredOficios.forEach(oficio => {
+        // Estilos visuales de Estado
+        let badgeStyle = "bg-amber-100 text-amber-700"; // Pendiente
+        if(oficio.estado === 'Donado') badgeStyle = "bg-emerald-100 text-emerald-700 border border-emerald-200";
+        else if(oficio.estado === 'Por Recoger') badgeStyle = "bg-sky-100 text-sky-700";
+        else if(oficio.estado === 'Por Responder') badgeStyle = "bg-purple-100 text-purple-700";
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition-colors group cursor-pointer';
-        tr.onclick = () => abrirModalOficio(oficio.id); // UX: Hacer clic en la fila completa
+        tr.className = 'hover:bg-slate-50 transition-colors group cursor-pointer border-b border-slate-50';
+        tr.onclick = () => abrirModal(oficio);
         
         tr.innerHTML = `
-          <td class="p-4 font-medium text-slate-800">${oficio.negocio}</td>
-          <td class="p-4 text-slate-500">Carpeta ${oficio.carpeta}</td>
-          <td class="p-4">
-            <span class="px-2 py-1 rounded-full text-xs font-medium ${badgeColor}">${oficio.estado || 'Pendiente'}</span>
-          </td>
-          <td class="p-4 text-right">
-            <button class="text-indigo-600 hover:text-indigo-800 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">Ver / Actualizar</button>
-          </td>
+          <td class="p-4 font-semibold text-slate-800">${oficio.negocio}</td>
+          <td class="p-4 text-slate-500 font-medium text-xs uppercase"><span class="bg-slate-100 px-2 py-1 rounded">Carpeta ${oficio.carpeta}</span></td>
+          <td class="p-4"><span class="px-3 py-1 rounded-full text-[11px] font-bold tracking-wide ${badgeStyle}">${oficio.estado}</span></td>
+          <td class="p-4 text-right"><button class="text-indigo-600 hover:text-indigo-800 font-bold text-sm bg-indigo-50 px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Registrar</button></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // --- MODAL Y SEGUIMIENTO ---
-    function abrirModalOficio(idOficio) {
-      selectedOficioId = idOficio;
-      const oficio = currentOficios.find(o => o.id == idOficio);
-      
-      document.getElementById('modalOficioName').textContent = oficio.negocio;
-      document.getElementById('modalOficioCarpeta').textContent = 'Carpeta ' + oficio.carpeta;
-      document.getElementById('nuevoComentario').value = '';
-      
-      // Bloquear botones si ya está donado
-      const btnDonacion = document.getElementById('btnRegistrarDonacion');
-      if(oficio.estado === 'Donado'){
-         btnDonacion.classList.add('hidden');
-      } else {
-         btnDonacion.classList.remove('hidden');
-      }
+    function actualizarDashboardStats(data) {
+      let pendientes = 0, accion = 0, donados = 0;
+      data.forEach(o => {
+        if(o.estado === 'Pendiente') pendientes++;
+        else if(o.estado === 'Por Recoger' || o.estado === 'Por Responder') accion++;
+        else if(o.estado === 'Donado') donados++;
+      });
 
-      document.getElementById('modalOficio').classList.remove('hidden');
-      cargarHistorial(idOficio);
+      document.getElementById('kpiTotal').textContent = data.length;
+      document.getElementById('kpiPendientes').textContent = pendientes;
+      document.getElementById('kpiAccion').textContent = accion;
+      document.getElementById('kpiDonados').textContent = donados;
+
+      // Actualizar Gráfica Chart.js
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      if(chartInstance) chartInstance.destroy();
+      
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pendiente', 'Acción Req.', 'Donado'],
+          datasets: [{
+            data: [pendientes, accion, donados],
+            backgroundColor: ['#fbbf24', '#38bdf8', '#10b981'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' }
+      });
     }
 
-    function cerrarModal() {
-      document.getElementById('modalOficio').classList.add('hidden');
-      selectedOficioId = null;
+    // --- SISTEMA DE NOTIFICACIONES Y FECHAS ---
+    function generarNotificaciones(data) {
+      const alertsContainer = document.getElementById('alertsContainer');
+      const badgeAlerts = document.getElementById('badgeAlerts');
+      alertsContainer.innerHTML = '';
+      let alertCount = 0;
+
+      const hoy = new Date();
+      hoy.setHours(0,0,0,0);
+
+      let alertas = [];
+
+      data.forEach(oficio => {
+        if((oficio.estado === 'Por Recoger' || oficio.estado === 'Por Responder') && oficio.fechaCita) {
+          // Parsear fecha de DB (formato string)
+          const citaDate = new Date(oficio.fechaCita);
+          citaDate.setHours(0,0,0,0);
+          
+          const diffTime = citaDate - hoy;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          if(diffDays <= 3) { // Mostrar si ya pasó, o si falta 3 días o menos
+            alertas.push({ oficio: oficio, diffDays: diffDays });
+          }
+        }
+      });
+
+      // Ordenar por más urgente (fechas menores primero)
+      alertas.sort((a,b) => a.diffDays - b.diffDays);
+
+      if(alertas.length === 0) {
+        alertsContainer.innerHTML = `<p class="text-sm text-slate-400 text-center mt-10 italic">Todo al día. No hay alertas.</p>`;
+        badgeAlerts.textContent = "0";
+        return;
+      }
+
+      alertas.forEach(alerta => {
+        alertCount++;
+        let colorTheme = "bg-sky-50 border-sky-200 text-sky-800";
+        let iconTheme = "bg-sky-200 text-sky-700";
+        let timeMsg = `En ${alerta.diffDays} días`;
+
+        if(alerta.diffDays < 0) {
+          colorTheme = "bg-rose-50 border-rose-200 text-rose-800";
+          iconTheme = "bg-rose-200 text-rose-700";
+          timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} días`;
+        } else if (alerta.diffDays === 0) {
+          colorTheme = "bg-amber-50 border-amber-200 text-amber-900";
+          iconTheme = "bg-amber-300 text-amber-800";
+          timeMsg = "¡Para Hoy!";
+        } else if (alerta.diffDays === 1) {
+          timeMsg = "Para Mañana";
+        }
+
+        const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger Donación' : 'Llamar/Respuesta';
+
+        alertsContainer.innerHTML += `
+          <div onclick="abrirModalPorId('${alerta.oficio.id}')" class="p-3 rounded-xl border cursor-pointer hover:shadow-md transition-all ${colorTheme}">
+            <div class="flex justify-between items-start mb-1">
+              <span class="text-xs font-bold uppercase tracking-wide flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full ${iconTheme}"></span> ${tipoAccion}
+              </span>
+              <span class="text-[10px] font-black uppercase bg-white/50 px-2 py-0.5 rounded">${timeMsg}</span>
+            </div>
+            <p class="font-bold text-sm leading-tight">${alerta.oficio.negocio}</p>
+          </div>
+        `;
+      });
+      badgeAlerts.textContent = alertCount;
+    }
+
+    // --- LÓGICA DEL MODAL INTERACTIVO ---
+    let oficioSeleccionado = null;
+
+    function abrirModalPorId(id) {
+        const o = currentOficios.find(x => x.id == id);
+        if(o) abrirModal(o);
+    }
+
+    function abrirModal(oficio) {
+      oficioSeleccionado = oficio;
+      document.getElementById('modalOficioName').textContent = oficio.negocio;
+      document.getElementById('modalOficioCarpeta').textContent = 'Carpeta ' + oficio.carpeta;
+      document.getElementById('modalCurrentStatus').textContent = oficio.estado;
+      
+      // Reset Form
+      document.getElementById('nuevoComentario').value = '';
+      document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : 'Pendiente';
+      document.getElementById('modalFecha').value = '';
+      toggleDateInput();
+
+      document.getElementById('modalOficio').classList.remove('hidden');
+      cargarHistorial(oficio.id);
+    }
+
+    function cerrarModal() { document.getElementById('modalOficio').classList.add('hidden'); }
+
+    function toggleDateInput() {
+      const estado = document.getElementById('modalNuevoEstado').value;
+      const dateContainer = document.getElementById('dateContainer');
+      if (estado === 'Por Responder' || estado === 'Por Recoger') {
+          dateContainer.classList.remove('hidden');
+      } else {
+          dateContainer.classList.add('hidden');
+          document.getElementById('modalFecha').value = '';
+      }
     }
 
     async function cargarHistorial(idOficio) {
       const timeline = document.getElementById('historialTimeline');
-      timeline.innerHTML = '<div class="text-center text-slate-400 text-sm py-4"><div class="loader inline-block"></div></div>';
-
+      timeline.innerHTML = '<div class="flex justify-center p-4"><div class="loader"></div></div>';
       const response = await apiRequest({ action: 'getDetalle', idOficio: idOficio });
-
-      if(response.success) {
-        if(response.historial.length === 0) {
-          timeline.innerHTML = '<p class="text-sm text-slate-500 italic text-center p-4">No hay seguimientos registrados aún.</p>';
-          return;
-        }
-
+      
+      if(response.success && response.historial.length > 0) {
         timeline.innerHTML = response.historial.map(h => `
-          <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm flex flex-col gap-1">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-700">${h.usuario}</span>
-              <span class="text-[10px] text-slate-400">${h.fecha}</span>
+          <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm relative">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-black text-slate-600">${h.usuario}</span>
+              <span class="text-[10px] text-slate-400 font-medium">${h.fecha}</span>
             </div>
-            <p class="text-sm text-slate-600 mt-1">${h.comentario}</p>
-            ${h.tipo === 'Donación' ? '<span class="text-xs bg-green-50 text-green-700 border border-green-100 px-2 py-1 rounded w-max font-medium mt-2">🎉 Donación Registrada</span>' : ''}
+            <p class="text-xs text-slate-600">${h.comentario}</p>
+            <div class="mt-2 text-[10px] font-bold text-indigo-500 uppercase">${h.tipo}</div>
           </div>
         `).join('');
       } else {
-        timeline.innerHTML = '<p class="text-sm text-red-500 text-center">Error cargando historial.</p>';
+        timeline.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay historial.</p>';
       }
     }
 
-    async function guardarAccion(esDonacion) {
+    async function guardarAccion() {
       const comentario = document.getElementById('nuevoComentario').value;
-      if(!comentario.trim()) {
-        alert("Por favor escribe un comentario sobre el avance.");
-        return;
+      const nuevoEstado = document.getElementById('modalNuevoEstado').value;
+      const fechaCita = document.getElementById('modalFecha').value;
+      const btn = document.getElementById('btnGuardarAvance');
+
+      if(!comentario.trim()) return alert("El comentario es obligatorio.");
+      if((nuevoEstado === 'Por Responder' || nuevoEstado === 'Por Recoger') && !fechaCita) {
+          return alert("Debes seleccionar una fecha para agendar.");
       }
 
-      // UX Feedback en los botones
-      const btnAvance = document.getElementById('btnRegistrarAvance');
-      const btnDonacion = document.getElementById('btnRegistrarDonacion');
-      const originalTextAvance = btnAvance.textContent;
-      const originalTextDonacion = btnDonacion.textContent;
-
-      if(esDonacion) btnDonacion.textContent = "Guardando...";
-      else btnAvance.textContent = "Guardando...";
-      
-      btnAvance.disabled = true;
-      btnDonacion.disabled = true;
+      btn.textContent = "Procesando..."; btn.disabled = true;
 
       const response = await apiRequest({ 
         action: 'registrarSeguimiento', 
-        idOficio: selectedOficioId, 
+        idOficio: oficioSeleccionado.id, 
         idUser: currentUser.id, 
         comentario: comentario, 
-        esDonacion: esDonacion 
+        nuevoEstado: nuevoEstado,
+        fechaCita: fechaCita
       });
 
-      // Restaurar Botones
-      btnAvance.disabled = false;
-      btnDonacion.disabled = false;
-      btnAvance.textContent = originalTextAvance;
-      btnDonacion.textContent = originalTextDonacion;
+      btn.textContent = "Registrar Avance"; btn.disabled = false;
 
       if(response.success) {
-        // Recargar datos y limpiar UI
-        document.getElementById('nuevoComentario').value = '';
-        if(esDonacion) {
-           cerrarModal(); 
-        } else {
-           cargarHistorial(selectedOficioId); // Solo refresca el historial del modal
-        }
-        cargarOficios('mis'); // Actualiza el dashboard (estado 'Donado') detrás en silencio
+        cerrarModal();
+        cargarDataGeneral(); // Recarga toda la data para actualizar Dashboard y Alertas en tiempo real
       } else {
-        alert("Ocurrió un error al guardar: " + response.message);
+        alert("Error: " + response.message);
       }
     }
   </script>
