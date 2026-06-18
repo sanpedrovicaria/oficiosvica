@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <title>Sistema Parroquia Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
     .glass-panel { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
     .hidden { display: none !important; }
-    /* Spinner de carga UI */
     .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4F46E5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
@@ -29,7 +29,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-          <input type="password" id="password" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="password" id="password" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" onkeypress="if(event.key === 'Enter') intentarLogin()">
         </div>
         <button onclick="intentarLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition-colors flex justify-center items-center">
           <span id="loginBtnText">Entrar</span>
@@ -47,20 +47,18 @@
       <div class="flex items-center gap-6">
         <h1 class="text-xl font-bold text-indigo-600">Parroquia Tracker</h1>
         <nav class="hidden md:flex gap-4">
-          <button onclick="cargarOficios('mis')" class="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1">Mis Carpetas</button>
-          <button onclick="cargarOficios('todos')" class="text-slate-500 hover:text-slate-800 font-medium pb-1">Todos los Oficios</button>
+          <button id="btnFiltroMis" onclick="cargarOficios('mis')" class="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all">Mis Carpetas</button>
+          <button id="btnFiltroTodos" onclick="cargarOficios('todos')" class="text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent">Todos los Oficios</button>
         </nav>
       </div>
       <div class="flex items-center gap-4">
         <span id="userNameDisplay" class="text-sm font-medium text-slate-600"></span>
-        <button onclick="cerrarSesion()" class="text-sm bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md transition">Salir</button>
+        <button onclick="cerrarSesion()" class="text-sm bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md transition font-medium">Salir</button>
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 max-w-7xl w-full mx-auto">
-      
-      <!-- Tabla de Oficios (Estilo UI Moderno) -->
       <div class="glass-panel overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
           <h2 class="text-lg font-semibold text-slate-800">Lista de Oficios</h2>
@@ -76,7 +74,7 @@
               </tr>
             </thead>
             <tbody id="tablaOficiosBody" class="text-sm divide-y divide-slate-100">
-              <!-- Renderizado por JS -->
+              <!-- Renderizado dinámico JS -->
             </tbody>
           </table>
           <div id="tablaLoader" class="p-8 flex justify-center hidden"><div class="loader"></div></div>
@@ -87,34 +85,272 @@
 
   <!-- MODAL: SEGUIMIENTO DE OFICIO -->
   <div id="modalOficio" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col">
+    <div class="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
       <div class="p-6 border-b border-slate-100 flex justify-between items-center">
         <div>
           <h2 id="modalOficioName" class="text-xl font-bold text-slate-800">Cargando...</h2>
           <span id="modalOficioCarpeta" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded mt-1 inline-block"></span>
         </div>
-        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+        <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
       </div>
       
       <!-- Historial -->
       <div class="p-6 overflow-y-auto flex-1 bg-slate-50/50">
         <h3 class="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Historial de Seguimiento</h3>
         <div id="historialTimeline" class="space-y-4">
-          <!-- Renderizado por JS -->
+          <!-- Renderizado dinámico -->
         </div>
       </div>
 
       <!-- Área de Input -->
       <div class="p-6 border-t border-slate-100 bg-white">
-        <textarea id="nuevoComentario" rows="2" placeholder="Ej: Fui a visitarlos, dijeron que regrese el martes..." class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none mb-4 text-sm"></textarea>
+        <textarea id="nuevoComentario" rows="2" placeholder="Ej: Fui a visitarlos, pidieron regresar el martes..." class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none mb-4 text-sm"></textarea>
         <div class="flex justify-end gap-3">
-          <button onclick="guardarAccion(false)" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium px-4 py-2 rounded-lg transition-colors text-sm">Registrar Avance</button>
-          <button onclick="guardarAccion(true)" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm shadow-sm shadow-green-600/20">¡Registrar Donación!</button>
+          <button id="btnRegistrarAvance" onclick="guardarAccion(false)" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium px-4 py-2 rounded-lg transition-colors text-sm flex items-center">Registrar Avance</button>
+          <button id="btnRegistrarDonacion" onclick="guardarAccion(true)" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm shadow-sm shadow-green-600/20 flex items-center">¡Registrar Donación!</button>
         </div>
       </div>
     </div>
   </div>
 
-  <?!= include('Logica'); ?>
+  <script>
+    // ==========================================
+    // CONFIGURACIÓN (REEMPLAZAR CON TU URL)
+    // ==========================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
+
+    // Estado Global de la App
+    let currentUser = null;
+    let currentOficios = [];
+    let selectedOficioId = null;
+
+    // --- FUNCIÓN NÚCLEO PARA COMUNICACIÓN CON LA API (FETCH MODERNO) ---
+    // En Apps Script es vital enviar el Body como String sin header de Content-Type 
+    // para evadir el bloqueo de CORS OPTIONS. El experto lo sabe.
+    async function apiRequest(payload) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error de Red:", error);
+        return { success: false, message: "Error conectando con el servidor." };
+      }
+    }
+
+    // --- NAVEGACIÓN UX ---
+    function mostrarVista(vistaId) {
+      document.getElementById('loginView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById(vistaId).classList.remove('hidden');
+    }
+
+    function actualizarEstilosFiltro(filtro) {
+      const btnMis = document.getElementById('btnFiltroMis');
+      const btnTodos = document.getElementById('btnFiltroTodos');
+      if (filtro === 'mis') {
+        btnMis.className = "text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all";
+        btnTodos.className = "text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent";
+      } else {
+        btnTodos.className = "text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1 transition-all";
+        btnMis.className = "text-slate-500 hover:text-slate-800 font-medium pb-1 transition-all border-b-2 border-transparent";
+      }
+    }
+
+    // --- LOGIN ASÍNCRONO ---
+    async function intentarLogin() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const btnText = document.getElementById('loginBtnText');
+      const loader = document.getElementById('loginLoader');
+      const errorMsg = document.getElementById('loginError');
+
+      if(!user || !pass) return;
+
+      // Estado UX de carga
+      btnText.textContent = "Verificando...";
+      loader.classList.remove('hidden');
+      errorMsg.classList.add('hidden');
+
+      const response = await apiRequest({ action: 'login', username: user, password: pass });
+
+      btnText.textContent = "Entrar";
+      loader.classList.add('hidden');
+
+      if(response.success) {
+        currentUser = response.user;
+        document.getElementById('userNameDisplay').textContent = "Hola, " + currentUser.nombre;
+        mostrarVista('dashboardView');
+        cargarOficios('mis');
+      } else {
+        errorMsg.textContent = response.message;
+        errorMsg.classList.remove('hidden');
+      }
+    }
+
+    function cerrarSesion() {
+      currentUser = null;
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      mostrarVista('loginView');
+    }
+
+    // --- CARGA Y RENDERIZADO DE OFICIOS ---
+    async function cargarOficios(filtro) {
+      actualizarEstilosFiltro(filtro);
+      const tbody = document.getElementById('tablaOficiosBody');
+      const loader = document.getElementById('tablaLoader');
+      
+      tbody.innerHTML = '';
+      loader.classList.remove('hidden');
+
+      const response = await apiRequest({ action: 'getOficios' });
+
+      loader.classList.add('hidden');
+
+      if(response.success) {
+        currentOficios = response.oficios;
+        renderizarTabla(filtro);
+      } else {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar datos.</td></tr>`;
+      }
+    }
+
+    function renderizarTabla(filtro) {
+      const tbody = document.getElementById('tablaOficiosBody');
+      tbody.innerHTML = '';
+
+      if (currentOficios.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">No hay oficios registrados.</td></tr>`;
+        return;
+      }
+
+      currentOficios.forEach(oficio => {
+        const esMiCarpeta = currentUser.carpetas.includes(oficio.carpeta.toString());
+        if(filtro === 'mis' && !esMiCarpeta && !currentUser.carpetas.includes('Libre')) return;
+
+        const badgeColor = oficio.estado === 'Donado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors group cursor-pointer';
+        tr.onclick = () => abrirModalOficio(oficio.id); // UX: Hacer clic en la fila completa
+        
+        tr.innerHTML = `
+          <td class="p-4 font-medium text-slate-800">${oficio.negocio}</td>
+          <td class="p-4 text-slate-500">Carpeta ${oficio.carpeta}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${badgeColor}">${oficio.estado || 'Pendiente'}</span>
+          </td>
+          <td class="p-4 text-right">
+            <button class="text-indigo-600 hover:text-indigo-800 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">Ver / Actualizar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- MODAL Y SEGUIMIENTO ---
+    function abrirModalOficio(idOficio) {
+      selectedOficioId = idOficio;
+      const oficio = currentOficios.find(o => o.id == idOficio);
+      
+      document.getElementById('modalOficioName').textContent = oficio.negocio;
+      document.getElementById('modalOficioCarpeta').textContent = 'Carpeta ' + oficio.carpeta;
+      document.getElementById('nuevoComentario').value = '';
+      
+      // Bloquear botones si ya está donado
+      const btnDonacion = document.getElementById('btnRegistrarDonacion');
+      if(oficio.estado === 'Donado'){
+         btnDonacion.classList.add('hidden');
+      } else {
+         btnDonacion.classList.remove('hidden');
+      }
+
+      document.getElementById('modalOficio').classList.remove('hidden');
+      cargarHistorial(idOficio);
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalOficio').classList.add('hidden');
+      selectedOficioId = null;
+    }
+
+    async function cargarHistorial(idOficio) {
+      const timeline = document.getElementById('historialTimeline');
+      timeline.innerHTML = '<div class="text-center text-slate-400 text-sm py-4"><div class="loader inline-block"></div></div>';
+
+      const response = await apiRequest({ action: 'getDetalle', idOficio: idOficio });
+
+      if(response.success) {
+        if(response.historial.length === 0) {
+          timeline.innerHTML = '<p class="text-sm text-slate-500 italic text-center p-4">No hay seguimientos registrados aún.</p>';
+          return;
+        }
+
+        timeline.innerHTML = response.historial.map(h => `
+          <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm flex flex-col gap-1">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700">${h.usuario}</span>
+              <span class="text-[10px] text-slate-400">${h.fecha}</span>
+            </div>
+            <p class="text-sm text-slate-600 mt-1">${h.comentario}</p>
+            ${h.tipo === 'Donación' ? '<span class="text-xs bg-green-50 text-green-700 border border-green-100 px-2 py-1 rounded w-max font-medium mt-2">🎉 Donación Registrada</span>' : ''}
+          </div>
+        `).join('');
+      } else {
+        timeline.innerHTML = '<p class="text-sm text-red-500 text-center">Error cargando historial.</p>';
+      }
+    }
+
+    async function guardarAccion(esDonacion) {
+      const comentario = document.getElementById('nuevoComentario').value;
+      if(!comentario.trim()) {
+        alert("Por favor escribe un comentario sobre el avance.");
+        return;
+      }
+
+      // UX Feedback en los botones
+      const btnAvance = document.getElementById('btnRegistrarAvance');
+      const btnDonacion = document.getElementById('btnRegistrarDonacion');
+      const originalTextAvance = btnAvance.textContent;
+      const originalTextDonacion = btnDonacion.textContent;
+
+      if(esDonacion) btnDonacion.textContent = "Guardando...";
+      else btnAvance.textContent = "Guardando...";
+      
+      btnAvance.disabled = true;
+      btnDonacion.disabled = true;
+
+      const response = await apiRequest({ 
+        action: 'registrarSeguimiento', 
+        idOficio: selectedOficioId, 
+        idUser: currentUser.id, 
+        comentario: comentario, 
+        esDonacion: esDonacion 
+      });
+
+      // Restaurar Botones
+      btnAvance.disabled = false;
+      btnDonacion.disabled = false;
+      btnAvance.textContent = originalTextAvance;
+      btnDonacion.textContent = originalTextDonacion;
+
+      if(response.success) {
+        // Recargar datos y limpiar UI
+        document.getElementById('nuevoComentario').value = '';
+        if(esDonacion) {
+           cerrarModal(); 
+        } else {
+           cargarHistorial(selectedOficioId); // Solo refresca el historial del modal
+        }
+        cargarOficios('mis'); // Actualiza el dashboard (estado 'Donado') detrás en silencio
+      } else {
+        alert("Ocurrió un error al guardar: " + response.message);
+      }
+    }
+  </script>
 </body>
 </html>
