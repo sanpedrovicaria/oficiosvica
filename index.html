@@ -248,6 +248,19 @@
     let activeFilterCarpeta = 'mis';
     let chartInstance = null;
 
+    // --- NUEVO: VERIFICAR SESIÓN AL CARGAR LA PÁGINA ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Revisamos si el navegador ya tiene un usuario guardado de antes
+      const usuarioGuardado = localStorage.getItem('parroquia_user');
+      if (usuarioGuardado) {
+        currentUser = JSON.parse(usuarioGuardado); // Recuperamos los datos
+        document.getElementById('userNameDisplay').textContent = currentUser.nombre;
+        document.getElementById('loginView').classList.add('hidden'); // Ocultamos el login
+        document.getElementById('dashboardView').classList.remove('hidden'); // Mostramos el panel
+        cargarDataGeneral(); // Cargamos la tabla directamente
+      }
+    });
+
     async function apiRequest(payload) {
       try {
         const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -272,6 +285,10 @@
 
       if(response.success) {
         currentUser = response.user;
+        
+        // --- NUEVO: GUARDAR SESIÓN EN EL NAVEGADOR ---
+        localStorage.setItem('parroquia_user', JSON.stringify(currentUser));
+
         document.getElementById('userNameDisplay').textContent = currentUser.nombre;
         document.getElementById('loginView').classList.add('hidden');
         document.getElementById('dashboardView').classList.remove('hidden');
@@ -281,7 +298,16 @@
       }
     }
 
-    function cerrarSesion() { location.reload(); }
+    // --- NUEVO: BORRAR SESIÓN AL SALIR ---
+    function cerrarSesion() { 
+      localStorage.removeItem('parroquia_user'); // Eliminamos la memoria
+      location.reload(); // Recargamos para volver al login
+    }
+
+
+    /* =====================================================================
+       TODO EL RESTO DE TU CÓDIGO JS SE MANTIENE EXACTAMENTE IGUAL ABAJO
+       ===================================================================== */
 
     async function cargarDataGeneral() {
       document.getElementById('tablaLoader').classList.remove('hidden');
@@ -424,14 +450,12 @@
       });
       
       badgeAlerts.textContent = alertCount;
-      // Actualiza también la campana del móvil
       if(document.getElementById('badgeAlertsMobile')) document.getElementById('badgeAlertsMobile').textContent = alertCount;
     }
 
     let oficioSeleccionado = null;
 
     function abrirModalPorId(id) {
-        // En móvil, si abre una alerta, cerramos el panel lateral para mostrar el modal del oficio
         document.getElementById('mobileAlertsWrapper').classList.add('hidden');
         const o = currentOficios.find(x => x.id == id);
         if(o) abrirModal(o);
