@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VicaOficios</title>
+<link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTs8T0LZCG-DLk8ax6x9sKYi94Loqwj7vPY5-imDxC7w&s=10" type="image/png"> 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -410,9 +411,12 @@
         tr.onclick = () => abrirModal(oficio);
         
         tr.innerHTML = `
-          <!-- Celda Negocio: Ocupa toda la línea superior -->
-          <td class="block md:table-cell px-0 md:px-6 pt-0 pb-2 md:py-4">
-            <span class="font-extrabold text-slate-800 text-[15px] md:text-sm md:whitespace-nowrap">${oficio.negocio}</span>
+          <!-- Celda Negocio -->
+          <td class="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-slate-50 md:border-none">
+            <div class="flex justify-between items-center md:block">
+              <span class="md:hidden text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Negocio</span>
+              <span class="font-bold text-slate-800 text-sm md:whitespace-nowrap text-right md:text-left">${oficio.negocio}</span>
+            </div>
           </td>
           
           <!-- Celda Carpeta: Ahora es inline-block en móvil para compartir fila -->
