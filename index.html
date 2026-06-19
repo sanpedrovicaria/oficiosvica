@@ -276,6 +276,7 @@
     // ==========================================
     // CONFIGURACIÓN API
     // ==========================================
+    
     const API_URL = "https://script.google.com/macros/s/AKfycbwlUmBzDsXi0z-1__r1bL9cLkp4CAD4885uIO8kHSWqvthA6SS0EtPWpEm6uvoHtHhE/exec"; 
 
     let currentUser = null;
@@ -580,28 +581,76 @@
       }
     }
 
+    // ==========================================
+    // LOGICA DE HISTORIAL Y LONG PRESS (MANTENER PRESIONADO)
+    // ==========================================
+    let timerLongPress;
+
     async function cargarHistorial(idOficio) {
       const timeline = document.getElementById('historialTimeline');
       timeline.innerHTML = '<div class="flex justify-center py-4"><div class="loader"></div></div>';
       const response = await apiRequest({ action: 'getDetalle', idOficio: idOficio });
       
       if(response.success && response.historial.length > 0) {
-        timeline.innerHTML = response.historial.map(h => `
-          <div class="relative pb-4">
+        timeline.innerHTML = response.historial.map(h => {
+          // Escapamos comillas en el comentario para que no rompa el código
+          const safeComentario = h.comentario.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          
+          return `
+          <div class="relative pb-4 select-none active:opacity-50 transition-opacity"
+               onmousedown="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')"
+               onmouseup="cancelarLongPress()"
+               onmouseleave="cancelarLongPress()"
+               ontouchstart="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')"
+               ontouchend="cancelarLongPress()"
+               ontouchmove="cancelarLongPress()">
+            
             <span class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-[#fafcfc]"></span>
-            <div class="flex justify-between items-baseline mb-0.5">
+            <div class="flex justify-between items-baseline mb-0.5 pointer-events-none">
               <span class="text-xs font-extrabold text-slate-700">${h.usuario}</span>
               <span class="text-[10px] text-slate-400 font-bold">${h.fecha}</span>
             </div>
-            <p class="text-xs text-slate-600 font-medium">${h.comentario}</p>
-            <div class="mt-1 text-[10px] font-extrabold text-indigo-500 uppercase tracking-wider">${h.tipo}</div>
+            <p class="text-xs text-slate-600 font-medium pointer-events-none">${h.comentario}</p>
+            <div class="mt-1 text-[10px] font-extrabold text-indigo-500 uppercase tracking-wider pointer-events-none">${h.tipo}</div>
           </div>
-        `).join('');
+        `}).join('');
       } else {
         timeline.innerHTML = '<p class="text-xs font-bold text-slate-400 text-center uppercase tracking-widest py-4">Sin historial previo</p>';
       }
     }
 
+    // Funciones que detectan si mantuvo presionado por 800 milisegundos
+    function iniciarLongPress(idOficio, fecha, comentario) {
+      timerLongPress = setTimeout(() => {
+        if (confirm("⚠️ ¿Deseas ELIMINAR este registro del historial?\n\nEsta acción no se puede deshacer.")) {
+            ejecutarEliminarSeguimiento(idOficio, fecha, comentario);
+        }
+      }, 800); // 800ms de presión continua
+    }
+
+    function cancelarLongPress() {
+      clearTimeout(timerLongPress);
+    }
+
+    async function ejecutarEliminarSeguimiento(idOficio, fecha, comentario) {
+      const timeline = document.getElementById('historialTimeline');
+      timeline.innerHTML = '<div class="flex justify-center py-4"><div class="loader border-t-rose-500"></div></div>';
+      
+      const response = await apiRequest({ 
+        action: 'eliminarSeguimiento', 
+        idOficio: idOficio, 
+        fecha: fecha, 
+        comentario: comentario 
+      });
+
+      if(response.success) {
+        cargarHistorial(idOficio); // Recargamos para que desaparezca
+      } else {
+        alert("Ocurrió un error al eliminar: " + response.message);
+        cargarHistorial(idOficio); // Restauramos si falla
+      }
+    }
+    
     async function guardarAccion() {
       const comentario = document.getElementById('nuevoComentario').value;
       const nuevoEstado = document.getElementById('modalNuevoEstado').value;
