@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kermesse Dashboard - Modern UI</title>
+  <title>VicaOficios</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
         <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
         </div>
-        <h1 class="text-2xl font-extrabold text-slate-800 mb-1">Parroquia Tracker</h1>
+        <h1 class="text-2xl font-extrabold text-slate-800 mb-1">Parroquia Oficios Tracker</h1>
         <p class="text-slate-400 text-sm font-medium">Ingresa para gestionar los oficios</p>
       </div>
       <div class="space-y-4">
@@ -71,29 +71,45 @@
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/20 shrink-0">O</div>
         <div>
-            <h1 class="text-xl font-extrabold text-slate-800 leading-tight">Oficios<span class="text-indigo-600">Track</span></h1>
+            <h1 class="text-xl font-extrabold text-slate-800 leading-tight">Vica<span class="text-indigo-600">Oficios</span></h1>
             <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Dashboard General</p>
         </div>
       </div>
       
-      <div class="flex items-center gap-4 lg:gap-5">
-        <!-- BOTÓN MÓVIL/TABLET: Muestra las alertas (Oculto en Desktop lg:) -->
-        <button onclick="document.getElementById('mobileAlertsWrapper').classList.remove('hidden')" class="lg:hidden relative p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
+      <div class="flex items-center gap-3 sm:gap-5">
+        <!-- BOTÓN MÓVIL/TABLET: Muestra las alertas -->
+        <button onclick="document.getElementById('mobileAlertsWrapper').classList.remove('hidden')" class="lg:hidden relative p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-100">
             <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
             <span id="badgeAlertsMobile" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white">0</span>
         </button>
 
-        <!-- Bloque de Usuario y Tombola Team -->
-        <div class="text-right hidden sm:flex flex-col justify-center">
-            <p id="userNameDisplay" class="text-sm font-extrabold text-slate-800 leading-none"></p>
-            <p class="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-wide">Tómbola Team</p>
+        <!-- NUEVO: MENÚ HAMBURGUESA (SÓLO VISIBLE EN MÓVILES) -->
+        <div class="relative sm:hidden">
+            <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <!-- Dropdown Menu -->
+            <div id="mobileMenu" class="hidden absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50">
+                <button onclick="cerrarSesion()" class="w-full text-left px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Salir
+                </button>
+            </div>
         </div>
-        
-        <div class="w-px h-8 bg-slate-200 hidden sm:block"></div>
-        
-        <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors bg-white px-6 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 shadow-sm flex items-center">
-            Salir
-        </button>
+
+        <!-- BLOQUE DE USUARIO Y BOTÓN SALIR (VISIBLE SÓLO EN DESKTOP/TABLET) -->
+        <div class="hidden sm:flex items-center gap-4 lg:gap-5">
+            <div class="text-right flex flex-col justify-center">
+                <p id="userNameDisplay" class="text-sm font-extrabold text-slate-800 leading-none"></p>
+                <p class="text-[11px] text-slate-400 font-bold mt-1.5 uppercase tracking-wide">Tómbola Team</p>
+            </div>
+            <div class="w-px h-8 bg-slate-200"></div>
+            <button onclick="cerrarSesion()" class="text-sm font-bold text-slate-600 hover:text-rose-600 transition-colors bg-white px-6 py-2.5 rounded-xl border border-slate-200 hover:border-rose-200 shadow-sm flex items-center">
+                Salir
+            </button>
+        </div>
       </div>
     </header>
 
@@ -103,14 +119,15 @@
       <!-- COLUMNA IZQUIERDA -->
       <div class="flex-1 flex flex-col gap-6 lg:overflow-hidden shrink-0 lg:shrink">
         
-        <div class="flex flex-col lg:flex-row gap-6 shrink-0">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+        <!-- CONTENEDOR OPTIMIZADO PARA EVITAR QUE SE APLASTEN LOS ELEMENTOS -->
+        <div class="flex flex-col xl:flex-row gap-6 shrink-0">
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 2xl:grid-cols-4 gap-4 flex-1">
             <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignados</p><span class="p-1.5 bg-slate-50 rounded-lg text-slate-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span></div><h3 id="kpiTotal" class="text-4xl font-black text-slate-800">0</h3></div>
             <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes</p><span class="p-1.5 bg-amber-50 rounded-lg text-amber-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span></div><h3 id="kpiPendientes" class="text-4xl font-black text-slate-800">0</h3></div>
             <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">En Acción</p><span class="p-1.5 bg-blue-50 rounded-lg text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></span></div><h3 id="kpiAccion" class="text-4xl font-black text-slate-800">0</h3></div>
             <div class="modern-card p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Donados</p><span class="p-1.5 bg-emerald-50 rounded-lg text-emerald-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span></div><div class="flex items-baseline gap-2"><h3 id="kpiDonados" class="text-4xl font-black text-emerald-500">0</h3><span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">🎉</span></div></div>
           </div>
-          <div class="modern-card p-5 w-full lg:w-64 flex flex-col items-center justify-center shrink-0">
+          <div class="modern-card p-5 w-full xl:w-64 flex flex-col items-center justify-center shrink-0">
              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider w-full mb-3 text-center">Progreso</h3>
              <div class="relative w-28 h-28"><canvas id="statusChart"></canvas></div>
           </div>
