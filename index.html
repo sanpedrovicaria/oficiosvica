@@ -319,6 +319,12 @@
     </div>
   </div>
 
+  <!-- INDICADOR DE PULL TO REFRESH (Estilo App Nativa) -->
+  <div id="ptrIndicator" class="fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full z-[60] bg-white shadow-xl rounded-full px-5 py-2.5 flex items-center gap-3 border border-slate-100 transition-transform duration-300 pointer-events-none">
+      <div class="w-4 h-4 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <span class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Actualizando</span>
+  </div>
+
   <script>
     // ==========================================
     // CONFIGURACIÓN API
@@ -839,6 +845,63 @@
         document.querySelectorAll('#multiSelectItems input[type="checkbox"]').forEach(chk => chk.checked = false);
         actualizarFiltrosMulti();
     }
+
+    // ==========================================
+    // LÓGICA DE PULL TO REFRESH (MÓVIL)
+    // ==========================================
+    const mainScrollArea = document.querySelector('main');
+    const ptrIndicator = document.getElementById('ptrIndicator');
+    let startY = 0;
+    let isPulling = false;
+
+    mainScrollArea.addEventListener('touchstart', (e) => {
+        // Solo iniciamos el gesto si el usuario está hasta arriba del todo
+        if (mainScrollArea.scrollTop === 0) {
+            startY = e.touches[0].clientY;
+            isPulling = true;
+            ptrIndicator.style.transition = 'none'; // Quitamos transición para que siga al dedo fluido
+        }
+    }, { passive: true });
+
+    mainScrollArea.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        const currentY = e.touches[0].clientY;
+        const pullDistance = currentY - startY;
+
+        // Si jalamos hacia abajo y estamos arriba
+        if (pullDistance > 0 && mainScrollArea.scrollTop === 0) {
+            // Resistencia UX: se mueve más lento que el dedo (efecto liga)
+            let resistance = pullDistance * 0.4;
+            if (resistance > 80) resistance = 80; // Tope máximo visual
+            ptrIndicator.style.transform = `translate(-50%, ${resistance}px)`;
+        }
+    }, { passive: true });
+
+    mainScrollArea.addEventListener('touchend', async (e) => {
+        if (!isPulling) return;
+        isPulling = false;
+        
+        const endY = e.changedTouches[0].clientY;
+        const pullDistance = endY - startY;
+
+        // Devolvemos la animación suave
+        ptrIndicator.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        // Si jaló con ganas (más de 60px de fuerza en pantalla)
+        if (pullDistance > 60) {
+            // Se queda visible girando en la parte superior
+            ptrIndicator.style.transform = `translate(-50%, 25px)`;
+            
+            // Recargamos los datos silenciosamente
+            await cargarDataGeneral();
+            
+            // Lo ocultamos después de cargar
+            ptrIndicator.style.transform = `translate(-50%, -100%)`;
+        } else {
+            // Si fue un toque débil, se esconde sin actualizar
+            ptrIndicator.style.transform = `translate(-50%, -100%)`;
+        }
+    });
   </script>
 </body>
 </html>
