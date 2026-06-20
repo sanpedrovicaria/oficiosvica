@@ -180,7 +180,7 @@
                     <!-- MULTI-SELECT DROPDOWN -->
                     <div class="relative w-1/2 md:w-auto">
                         <button id="btnMultiSelect" onclick="toggleMultiSelect()" class="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all flex items-center justify-between gap-3">
-                            <span class="truncate">Carpetas</span>
+                            <span class="truncate">Fólders</span>
                             <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         
@@ -307,13 +307,13 @@
       
       <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-white shrink-0">
         <div>
+          <h2 id="modalOficioName" class="text-2xl font-extrabold text-slate-800">Cargando...</h2>
           <div class="flex items-center gap-2 mb-2 flex-wrap">
              <span id="modalOficioCarpeta" class="text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"></span>
              <span id="modalCurrentStatus" class="text-[10px] font-extrabold uppercase tracking-widest bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg"></span>
              <!-- Badge Fecha -->
              <span id="modalFechaProgramada" class="hidden text-[10px] font-extrabold uppercase tracking-widest bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg border border-amber-100"></span>
           </div>
-          <h2 id="modalOficioName" class="text-2xl font-extrabold text-slate-800">Cargando...</h2>
         </div>
         <button onclick="cerrarModal()" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0">✕</button>
       </div>
