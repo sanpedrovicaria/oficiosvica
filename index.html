@@ -147,8 +147,11 @@
         <div class="modern-card p-3 flex flex-col xl:flex-row gap-4 items-center justify-between shrink-0">
             <!-- Tabs Mis Oficios / Todos -->
             <div class="flex bg-slate-50 p-1 rounded-xl w-full xl:w-auto shrink-0">
-              <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all">Mis Oficios</button>
-              <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all">Todos</button>
+              <!-- "Mis Oficios" ahora inicia apagado -->
+              <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all">Mis Oficios</button>
+              
+              <!-- "Todos" ahora inicia encendido -->
+              <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all">Todos</button>
             </div>
             
             <!-- Contenedor derecho: En móvil (flex-col para apilar), en PC (md:flex-row) -->
@@ -325,7 +328,7 @@
 
     let currentUser = null;
     let currentOficios = [];
-    let activeFilterCarpeta = 'mis';
+    let activeFilterCarpeta = 'todos';
     let chartInstance = null;
     let currentPage = 1;
     const itemsPerPage = 20;
@@ -472,12 +475,15 @@
 
       if(totalItems > 0) {
           paginationControls.classList.remove('hidden');
+          paginationControls.classList.add('flex'); // <-- ¡Añadido para forzar la vista en móvil!
+          
           // Mostramos ej: "Mostrando 1-20 de 125"
           paginationInfo.textContent = `Mostrando ${startIndex + 1} - ${endIndex} de ${totalItems}`;
           btnPrev.disabled = currentPage === 1;
           btnNext.disabled = currentPage === totalPages;
       } else {
-          paginationControls.classList.add('hidden'); // Si no hay nada, ocultar paginador
+          paginationControls.classList.add('hidden');
+          paginationControls.classList.remove('flex'); // <-- Lo ocultamos limpiamente
       }
 
       // 4. RENDERIZAR TABLA CON LA DATA PAGINADA
