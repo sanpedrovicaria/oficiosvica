@@ -332,7 +332,7 @@
                 <option value="Pendiente">Solo se entregó el oficio</option>
                 <option value="Por Responder_SinFecha">Visita de seguimiento - No atendieron</option>
                 <option value="Por Responder">Pidieron tiempo - Nos darán una respuesta</option>
-                <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger donación</option>
+                <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger/traerán</option>
                 <option value="Donado" class="font-bold text-emerald-600">🎉 ¡Donación recibida hoy!</option>
                 <option value="No Donará" class="font-bold text-rose-600">❌ No donarán (Rechazado)</option>            
             </select>
@@ -761,6 +761,13 @@
           dateContainer.classList.remove('hidden');
           donacionContainer.classList.add('hidden');
           labelComentario.textContent = "Comentarios adicionales";
+          
+          const labelFecha = dateContainer.querySelector('label');
+          if (estado === 'Por Recoger') {
+              labelFecha.textContent = "2. Fecha (Opcional: Dejar en blanco si ellos lo traen)";
+          } else {
+              labelFecha.textContent = "2. ¿Para qué fecha acordaron?";
+          }
       } else if (estado === 'Donado') {
           dateContainer.classList.add('hidden');
           donacionContainer.classList.remove('hidden');
@@ -872,8 +879,8 @@
           return alert("El comentario sobre la gestión es obligatorio.");
       }
       
-      // OJO: Validamos la fecha usando el estado original (Así ignora a los que son _SinFecha)
-      if ((estadoSeleccionado === 'Por Responder' || estadoSeleccionado === 'Por Recoger') && !fechaCita) {
+      // OJO: Solo "Por Responder" obliga la fecha. "Por Recoger" ahora es opcional.
+      if (estadoSeleccionado === 'Por Responder' && !fechaCita) {
           return alert("Debes seleccionar una fecha para agendar en el calendario.");
       }
       
