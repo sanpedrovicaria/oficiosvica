@@ -670,7 +670,7 @@
         if(alerta.diffDays < 0) { bgCard = "bg-rose-50/50"; dotColor = "bg-rose-500"; textHighlight = "text-rose-600"; timeMsg = `Retraso de ${Math.abs(alerta.diffDays)} d`; } 
         else if (alerta.diffDays === 0) { bgCard = "bg-amber-50/50"; dotColor = "bg-amber-500"; textHighlight = "text-amber-600"; timeMsg = "¡Hoy!"; } 
         else if (alerta.diffDays === 1) { timeMsg = "Para Mañana"; }
-        const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger' : 'Llamar';
+        const tipoAccion = alerta.oficio.estado === 'Por Recoger' ? 'Recoger' : 'Ir/Llamar';
 
         alertsContainer.innerHTML += `
           <div onclick="abrirModalPorId('${alerta.oficio.id}')" class="p-4 rounded-2xl cursor-pointer hover:scale-[1.02] transition-transform ${bgCard} flex gap-3 border border-slate-100">
@@ -1043,26 +1043,52 @@
 
         donados.forEach(oficio => {
             const tr = document.createElement('tr');
-            tr.className = 'block lg:table-row bg-white border border-slate-200 lg:border-transparent lg:border-b lg:border-b-slate-100 rounded-2xl lg:rounded-none mb-3 lg:mb-0 p-4 lg:p-0 shadow-sm lg:shadow-none hover:bg-emerald-50/30 transition-colors';
-            
-            tr.innerHTML = `
-              <td class="block lg:table-cell px-0 lg:px-8 py-2 lg:py-4 align-middle">
-                <div class="flex justify-between items-center lg:block">
-                  <span class="lg:hidden text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Negocio</span>
-                  <span class="font-bold text-slate-800 text-sm">${oficio.negocio}</span>
-                </div>
-              </td>
-              <td class="inline-block lg:table-cell px-0 lg:px-6 py-1 lg:py-4 align-middle">
-                <span class="text-slate-500 font-bold text-[11px] lg:text-xs bg-slate-100 px-2.5 py-1 rounded-lg">Fólder ${oficio.carpeta}</span>
-              </td>
-              <td class="block lg:table-cell px-0 lg:px-8 pt-3 pb-1 lg:py-4 align-middle">
-                <div class="flex flex-col lg:block bg-emerald-50 lg:bg-transparent p-3 lg:p-0 rounded-xl border border-emerald-100 lg:border-none">
-                    <span class="lg:hidden text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest mb-1">Detalle:</span>
-                    <span class="font-bold text-emerald-800 text-sm">${oficio.donacion || 'Sin detalle especificado'}</span>
-                </div>
-              </td>
-            `;
-            tbody.appendChild(tr);
+        
+        // NUEVO: Agregamos flex y flex-wrap para que se comporte como Grid en celular, pero como Tabla normal en PC
+        tr.className = 'flex flex-wrap lg:table-row hover:bg-slate-50 transition-colors group cursor-pointer bg-white border border-slate-200 lg:border-transparent lg:border-b lg:border-b-slate-100 rounded-2xl lg:rounded-none mb-3 lg:mb-0 p-4 lg:p-0 shadow-sm lg:shadow-none';
+        tr.onclick = () => abrirModal(oficio);
+        
+        tr.innerHTML = `
+          <!-- 1. NEGOCIO (Ocupa todo el ancho en móvil, 100%) -->
+          <td class="w-full lg:w-auto block lg:table-cell px-0 lg:px-8 pt-1 pb-3 lg:py-4 border-b border-slate-50 lg:border-none align-middle">
+            <div class="flex justify-between items-center lg:block">
+              <span class="lg:hidden text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Negocio</span>
+              <span class="font-bold text-slate-800 text-sm lg:whitespace-nowrap text-right lg:text-left">${oficio.negocio}</span>
+            </div>
+          </td>
+          
+          <!-- 2. CARPETA (Ocupa la mitad izquierda en móvil, 50%) -->
+          <td class="w-1/2 lg:w-auto block lg:table-cell px-0 lg:px-6 py-3 lg:py-4 align-middle">
+            <span class="text-slate-500 font-bold text-[11px] lg:text-xs bg-slate-100 px-2.5 py-1 rounded-lg">Fólder ${oficio.carpeta}</span>
+          </td>
+          
+          <!-- 3. ESTADO (Ocupa la mitad derecha en móvil, 50%, texto a la derecha) -->
+          <td class="w-1/2 lg:w-auto block text-right lg:text-left lg:table-cell px-0 lg:px-6 py-3 lg:py-4 align-middle">
+            ${tagHTML}
+          </td>
+          
+          <!-- 4. BOTONES (Ocupa todo el ancho abajo, 100%) -->
+          <td class="w-full lg:w-auto block lg:table-cell px-0 lg:px-8 pt-2 pb-1 lg:py-4 align-middle">
+             
+             <!-- Contenedor Flex para los 2 botones -->
+             <div class="flex w-full lg:w-auto gap-2 lg:justify-end">
+                 
+                 <!-- BOTÓN 1: INFO -->
+                 <button onclick="event.stopPropagation(); alert('Info de: ${oficio.negocio}\\nCarpeta: Fólder ${oficio.carpeta}\\nEstado Actual: ${oficio.estado}');" class="flex-1 lg:flex-none text-slate-500 font-bold text-[13px] lg:text-xs bg-slate-100 hover:bg-slate-200 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Info
+                 </button>
+                 
+                 <!-- BOTÓN 2: REGISTRAR -->
+                 <button class="flex-1 lg:flex-none text-white font-bold text-[13px] lg:text-xs bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
+                    <svg class="w-4 h-4 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Registrar
+                 </button>
+
+             </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
         });
     }
   </script>
