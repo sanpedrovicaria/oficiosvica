@@ -615,17 +615,17 @@
              <!-- Contenedor Flex para los 2 botones -->
              <div class="flex w-full lg:w-auto gap-2 lg:justify-end">
                  
-                 <!-- BOTÓN 1: INFO (Añadimos event.stopPropagation para que no abra el otro modal) -->
-                 <button onclick="event.stopPropagation(); abrirInfo(oficio);" class="flex-1 lg:flex-none text-slate-500 font-bold text-[13px] lg:text-xs bg-slate-100 hover:bg-slate-200 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Info
-                 </button>
-                 
-                 <!-- BOTÓN 2: REGISTRAR (Añadimos event.stopPropagation también aquí) -->
-                 <button onclick="event.stopPropagation(); abrirModal(oficio);" class="flex-1 lg:flex-none text-white font-bold text-[13px] lg:text-xs bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
-                    <svg class="w-4 h-4 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    Registrar
-                 </button>
+                 <!-- BOTÓN 1: INFO -->
+                <button onclick="event.stopPropagation(); abrirInfo('${oficio.id}');" class="flex-1 lg:flex-none text-slate-500 font-bold text-[13px] lg:text-xs bg-slate-100 hover:bg-slate-200 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                   Info
+                </button>
+                
+                <!-- BOTÓN 2: REGISTRAR -->
+                <button onclick="event.stopPropagation(); abrirModalPorId('${oficio.id}');" class="flex-1 lg:flex-none text-white font-bold text-[13px] lg:text-xs bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
+                   <svg class="w-4 h-4 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                   Registrar
+                </button>
              </div>
           </td>
         `;
@@ -1053,11 +1053,17 @@
     // -----------------------
 
     // Función para abrir el modal de Info
-    function abrirInfo(oficio) {
-        event.stopPropagation(); // Evita que se abra el modal de registro
+    function abrirInfo(id) {
+        // 1. Buscamos el objeto por su ID
+        const oficio = currentOficios.find(x => x.id == id);
+        if (!oficio) return;
+        
         oficioSeleccionado = oficio; // Guardamos el oficio actual en la variable global
         document.getElementById('infoNegocioName').textContent = oficio.negocio;
-        document.getElementById('infoCelular').value = ''; // Aquí deberías cargar el cel si lo traes en getOficios
+        
+        // 2. Cargamos el celular si lo tenemos (Añadiremos esto al backend en el paso 3)
+        document.getElementById('infoCelular').value = oficio.celular || ''; 
+        
         document.getElementById('modalInfo').classList.remove('hidden');
     }
 
