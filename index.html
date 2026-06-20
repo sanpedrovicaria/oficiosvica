@@ -177,7 +177,7 @@
 
                     <!-- MULTI-SELECT DROPDOWN -->
                     <div class="relative w-1/2 md:w-auto">
-                        <button onclick="toggleMultiSelect()" class="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all flex items-center justify-between gap-3">
+                        <button id="btnMultiSelect" onclick="toggleMultiSelect()" class="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all flex items-center justify-between gap-3">
                             <span class="truncate">Carpetas</span>
                             <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
@@ -217,14 +217,13 @@
           </div>
 
           <!-- FOOTER DE PAGINACIÓN -->
-          <div id="paginationControls" class="hidden px-4 lg:px-8 py-3.5 border-t border-slate-100 flex-col sm:flex-row gap-3 items-center justify-between bg-white rounded-b-[24px] lg:rounded-b-none lg:bg-[#fafcfc] shrink-0 shadow-sm lg:shadow-none border lg:border-none border-slate-200">
-             <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest" id="paginationInfo">Mostrando 0-0 de 0</span>
-             <div class="flex gap-2 w-full sm:w-auto">
-                <button id="btnPrevPage" onclick="changePage(-1)" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">Anterior</button>
-                <button id="btnNextPage" onclick="changePage(1)" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">Siguiente</button>
+          <div id="paginationControls" class="hidden px-4 py-4 lg:px-8 lg:py-3.5 border-t border-slate-100 flex flex-row flex-wrap gap-3 items-center justify-between bg-white rounded-b-[24px] lg:rounded-b-none lg:bg-[#fafcfc] shrink-0 shadow-sm lg:shadow-none border lg:border-none border-slate-200 mb-6 lg:mb-0">
+             <span class="text-[10px] sm:text-[11px] font-extrabold text-slate-400 uppercase tracking-widest" id="paginationInfo">Mostrando 0-0 de 0</span>
+             <div class="flex gap-2">
+                <button id="btnPrevPage" onclick="changePage(-1)" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">Anterior</button>
+                <button id="btnNextPage" onclick="changePage(1)" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">Siguiente</button>
              </div>
-          </div>
-          
+          </div>          
         </div>
 
       </div>
@@ -320,7 +319,7 @@
   </div>
 
   <!-- INDICADOR DE PULL TO REFRESH (Estilo App Nativa) -->
-  <div id="ptrIndicator" class="fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full z-[60] bg-white shadow-xl rounded-full px-5 py-2.5 flex items-center gap-3 border border-slate-100 transition-transform duration-300 pointer-events-none">
+  <div id="ptrIndicator" class="fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full z-[60] bg-white rounded-full px-5 py-2.5 flex items-center gap-3 border border-slate-100 transition-transform duration-300 pointer-events-none">
       <div class="w-4 h-4 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
       <span class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Actualizando</span>
   </div>
@@ -413,19 +412,22 @@
         popularMultiSelect();
         renderizarTabla();
       }
-    }
+    }renderizarTabla
 
     function aplicarFiltroCarpeta(tipo) {
       activeFilterCarpeta = tipo;
       const btnMis = document.getElementById('btnFiltroMis');
       const btnTodos = document.getElementById('btnFiltroTodos');
+      const btnMultiSelect = document.getElementById('btnMultiSelect');
       
       if(tipo === 'mis'){
-        btnMis.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
-        btnTodos.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
+        btnMis.className = "flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
+        btnTodos.className = "flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
+        btnMultiSelect.disabled = true; // Apaga y bloquea el botón Carpetas
       } else {
-        btnTodos.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
-        btnMis.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
+        btnTodos.className = "flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all";
+        btnMis.className = "flex-1 xl:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all";
+        btnMultiSelect.disabled = false; // Enciende el botón Carpetas
       }
       aplicarFiltros();
     }
@@ -456,8 +458,8 @@
         if(activeFilterCarpeta === 'mis' && !esMio && !currentUser.carpetas.includes('Libre')) return false;
         if(searchInp && !oficio.negocio.toLowerCase().includes(searchInp) && !oficio.carpeta.toString().includes(searchInp)) return false;
         if(statusFilter !== 'Todos' && oficio.estado !== statusFilter) return false;
-        if(!selectedFiltrosMulti.includes(oficio.carpeta.toString())) return false;
-        return true;
+// Si no estamos en "Mis oficios", entonces SÍ aplica el filtro de carpetas
+        if(activeFilterCarpeta !== 'mis' && !selectedFiltrosMulti.includes(oficio.carpeta.toString())) return false;        return true;
       });
 
       // Se actualizan gráficos con la data filtrada (sin paginar)
@@ -527,7 +529,7 @@
           </td>
           
           <td class="block lg:table-cell px-0 lg:px-8 pt-3 pb-0 lg:py-4 text-right align-middle">
-             <button class="w-full lg:w-auto text-indigo-600 font-bold text-[13px] lg:text-xs bg-indigo-50 hover:bg-indigo-100 px-4 py-2 lg:py-1.5 rounded-xl transition-all flex items-center justify-center gap-2">
+             <button class="w-full lg:w-auto text-white font-bold text-[13px] lg:text-xs bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 lg:py-2 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20">
                 <svg class="w-3.5 h-3.5 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Registrar <span class="lg:hidden">Seguimiento</span>
              </button>
