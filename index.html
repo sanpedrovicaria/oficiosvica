@@ -367,6 +367,29 @@
     </div>
   </div>
 
+  <!-- MODAL: INFO NEGOCIO -->
+<div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+  <div class="modern-card w-full max-w-md p-6">
+    <h2 class="text-xl font-black text-slate-800 mb-4" id="infoNegocioName">Info Negocio</h2>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Celular</label>
+        <div class="flex gap-2">
+            <input type="text" id="infoCelular" class="w-full px-4 py-3 bg-slate-50 rounded-xl text-sm font-bold border border-slate-100 outline-none">
+            <button onclick="copiarNumero()" class="bg-indigo-50 text-indigo-600 px-4 rounded-xl font-bold text-xs hover:bg-indigo-100">Copiar</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Foto Tarjeta</label>
+        <input type="file" id="infoFoto" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+      </div>
+      <button id="btnGuardarInfo" onclick="guardarInfo()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-900">Guardar Cambios</button>
+      <button onclick="document.getElementById('modalInfo').classList.add('hidden')" class="w-full text-slate-400 text-sm font-bold py-2">Cancelar</button>
+    </div>
+  </div>
+</div>
+
   <!-- INDICADOR DE PULL TO REFRESH (Estilo App Nativa) -->
   <div id="ptrIndicator" class="fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full z-[60] bg-white rounded-full px-5 py-2.5 flex items-center gap-3 border border-slate-100 transition-transform duration-300 pointer-events-none">
       <div class="w-4 h-4 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -1028,6 +1051,51 @@
             renderDonaciones(); // Dibujar tabla donaciones
         }
     }
+
+    // -----------------------
+
+    // Función para abrir el modal de Info
+    function abrirInfo(oficio) {
+        oficioSeleccionado = oficio;
+        document.getElementById('infoNegocioName').textContent = oficio.negocio;
+        document.getElementById('infoCelular').value = ''; // Aquí deberías cargar el valor si lo traes en getOficios
+        document.getElementById('modalInfo').classList.remove('hidden');
+    }
+
+    function copiarNumero() {
+        const cel = document.getElementById('infoCelular');
+        cel.select();
+        document.execCommand('copy');
+        alert("Número copiado!");
+    }
+
+    async function guardarInfo() {
+        const btn = document.getElementById('btnGuardarInfo');
+        const fileInput = document.getElementById('infoFoto');
+        const celular = document.getElementById('infoCelular').value;
+        
+        btn.textContent = "Guardando...";
+        
+        let base64 = "";
+        let name = "";
+        
+        if(fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            name = file.name;
+            base64 = await toBase64(file);
+        }
+
+        await apiRequest({ action: 'guardarInfoNegocio', idOficio: oficioSeleccionado.id, celular, base64Data: base64, fileName: name });
+        document.getElementById('modalInfo').classList.add('hidden');
+        btn.textContent = "Guardar Cambios";
+    }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 
     // ==========================================
     // RENDERIZAR VISTA DONACIONES
