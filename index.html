@@ -148,11 +148,14 @@
               <button id="btnFiltroMis" onclick="aplicarFiltroCarpeta('mis')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white shadow-sm text-indigo-600 transition-all">Mis Oficios</button>
               <button id="btnFiltroTodos" onclick="aplicarFiltroCarpeta('todos')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-700 transition-all">Todos</button>
             </div>
-            <div class="flex flex-1 w-full md:w-auto gap-3 justify-end">
+            <div class="flex flex-1 w-full md:w-auto gap-3 justify-end items-center relative">
+                <!-- Buscador -->
                 <div class="relative w-full md:max-w-xs">
                     <svg class="w-4 h-4 absolute left-3 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input type="text" id="searchInp" onkeyup="renderizarTabla()" placeholder="Buscar negocio..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-200 focus:ring-2 focus:ring-indigo-100 outline-none transition-all">
                 </div>
+                
+                <!-- Select de Estados -->
                 <select id="statusFilter" onchange="renderizarTabla()" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all cursor-pointer">
                     <option value="Todos">Todos los Estados</option>
                     <option value="Pendiente">Pendientes</option>
@@ -160,6 +163,28 @@
                     <option value="Por Recoger">Por Recoger</option>
                     <option value="Donado">Donados</option>
                 </select>
+
+                <!-- NUEVO: MULTI-SELECT DROPDOWN -->
+                <div class="relative">
+                    <button onclick="toggleMultiSelect()" class="w-full sm:w-auto px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-transparent rounded-xl text-sm font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none transition-all flex items-center justify-between gap-3">
+                        <span>Carpetas</span>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    
+                    <!-- Overlay invisible para cerrar al hacer clic afuera -->
+                    <div id="multiSelectOverlay" class="hidden fixed inset-0 z-40" onclick="toggleMultiSelect()"></div>
+                    
+                    <!-- Menú Desplegable -->
+                    <div id="multiSelectMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden flex flex-col origin-top-right transition-all">
+                        <div class="p-3 border-b border-slate-50 bg-slate-50/80 flex justify-between items-center shrink-0">
+                            <button onclick="selectAllMulti()" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors px-2 py-1 bg-indigo-50 rounded-lg">Marcar Todo</button>
+                            <button onclick="clearMulti()" class="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-700 transition-colors px-2 py-1 bg-rose-50 rounded-lg">Limpiar</button>
+                        </div>
+                        <div id="multiSelectItems" class="max-h-60 overflow-y-auto p-2 flex flex-col gap-0.5">
+                            <!-- Los checkboxes se inyectarán aquí vía JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -392,6 +417,9 @@
         if(activeFilterCarpeta === 'mis' && !esMio && !currentUser.carpetas.includes('Libre')) return false;
         if(searchInp && !oficio.negocio.toLowerCase().includes(searchInp) && !oficio.carpeta.toString().includes(searchInp)) return false;
         if(statusFilter !== 'Todos' && oficio.estado !== statusFilter) return false;
+      
+        if(!selectedFiltrosMulti.includes(oficio.carpeta.toString())) return false;
+
         return true;
       });
 
@@ -699,6 +727,56 @@
       } else {
         alert("Error: " + response.message);
       }
+    }
+
+    // ==========================================
+    // LÓGICA DEL DROPDOWN MULTI-SELECT
+    // ==========================================
+    let selectedFiltrosMulti = [];
+
+    function toggleMultiSelect() {
+        document.getElementById('multiSelectMenu').classList.toggle('hidden');
+        document.getElementById('multiSelectOverlay').classList.toggle('hidden');
+    }
+
+    function popularMultiSelect() {
+        const container = document.getElementById('multiSelectItems');
+        container.innerHTML = '';
+        
+        // NOTA: Aquí extraigo los nombres únicos de las "carpetas". 
+        // Si en su lugar querías filtrar por el nombre del negocio, cambia "o.carpeta" por "o.negocio"
+        let unicos = [...new Set(currentOficios.map(o => o.carpeta.toString()))];
+        
+        // Ordenar alfabéticamente/numéricamente
+        unicos.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+        
+        // Por defecto, iniciamos con todos marcados
+        selectedFiltrosMulti = [...unicos]; 
+
+        unicos.forEach(item => {
+            container.innerHTML += `
+                <label class="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group">
+                    <input type="checkbox" value="${item}" checked onchange="actualizarFiltrosMulti()" class="w-4 h-4 text-indigo-600 border-slate-300 rounded accent-indigo-600 cursor-pointer">
+                    <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">Fólder ${item}</span>
+                </label>
+            `;
+        });
+    }
+
+    function actualizarFiltrosMulti() {
+        const checkboxes = document.querySelectorAll('#multiSelectItems input[type="checkbox"]');
+        selectedFiltrosMulti = Array.from(checkboxes).filter(chk => chk.checked).map(chk => chk.value);
+        renderizarTabla(); // Recargamos la tabla con los nuevos datos
+    }
+
+    function selectAllMulti() {
+        document.querySelectorAll('#multiSelectItems input[type="checkbox"]').forEach(chk => chk.checked = true);
+        actualizarFiltrosMulti();
+    }
+
+    function clearMulti() {
+        document.querySelectorAll('#multiSelectItems input[type="checkbox"]').forEach(chk => chk.checked = false);
+        actualizarFiltrosMulti();
     }
   </script>
 </body>
