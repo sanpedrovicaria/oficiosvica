@@ -329,7 +329,7 @@
         <div>
             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">1. Resultado de gestión</label>
             <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 outline-none font-bold text-slate-700 cursor-pointer transition-all">
-                <option value="Pendiente">Solo se entregó el oficio</option>
+                <option value="Entregado">Solo se entregó el oficio</option>
                 <option value="Por Responder_SinFecha">Visita de seguimiento - No atendieron</option>
                 <option value="Por Responder">Pidieron tiempo - Nos darán una respuesta</option>
                 <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger/traerán</option>
@@ -583,6 +583,7 @@
         else if(oficio.estado === 'Por Recoger') { bgStyle = "bg-blue-50 text-blue-600"; dotColor = "bg-blue-400"; } 
         else if(oficio.estado === 'Por Responder') { bgStyle = "bg-purple-50 text-purple-600"; dotColor = "bg-purple-400"; }
         else if(oficio.estado === 'No Donará') { bgStyle = "bg-rose-50 text-rose-600"; dotColor = "bg-rose-400"; }
+        else if(oficio.estado === 'Entregado') { bgStyle = "bg-indigo-50 text-indigo-600"; dotColor = "bg-indigo-400"; }
 
         const tagHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide ${bgStyle}"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${oficio.estado}</span>`;
 
@@ -635,7 +636,7 @@
       let pendientes = 0, accion = 0, donados = 0, rechazados = 0;
       data.forEach(o => {
         if(o.estado === 'Pendiente') pendientes++;
-        else if(o.estado === 'Por Recoger' || o.estado === 'Por Responder') accion++;
+        else if(o.estado === 'Por Recoger' || o.estado === 'Por Responder' || o.estado === 'Entregado') accion++;
         else if(o.estado === 'Donado') donados++;
         else if(o.estado === 'No Donará') rechazados++;
       });
@@ -742,7 +743,8 @@
       
       document.getElementById('nuevoComentario').value = '';
       document.getElementById('detalleDonacion').value = '';
-      document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : (oficio.estado === 'No Donará' ? 'No Donará' : 'Pendiente');      document.getElementById('modalFecha').value = '';
+       document.getElementById('modalNuevoEstado').value = (oficio.estado === 'Pendiente') ? 'Entregado' : oficio.estado;
+      document.getElementById('modalFecha').value = '';
       toggleDateInput();
 
       document.getElementById('modalOficio').classList.remove('hidden');
