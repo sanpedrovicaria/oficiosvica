@@ -174,6 +174,7 @@
                         <option value="Por Responder">Por Responder</option>
                         <option value="Por Recoger">Por Recoger</option>
                         <option value="Donado">Donados</option>
+                        <option value="No Donará">No Donarán</option>
                     </select>
 
                     <!-- MULTI-SELECT DROPDOWN -->
@@ -280,7 +281,7 @@
       </div>
 
       <!-- Tabla de Donaciones -->
-      <div class="modern-card flex-1 flex flex-col overflow-hidden bg-transparent lg:bg-white shadow-none lg:shadow-sm border-none lg:border border-slate-100">
+      <div class="modern-card flex-1 flex flex-col overflow-hidden bg-transparent lg:bg-white shadow-none lg:shadow-sm border-none lg:border border-slate-100 mb-6 lg:mb-0" >
         <div class="overflow-y-auto flex-1 pb-4 lg:p-0">
           <table class="w-full text-left border-collapse block lg:table">
             <thead class="hidden lg:table-header-group sticky top-0 bg-white z-10 shadow-sm">
@@ -328,10 +329,11 @@
         <div>
             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">1. Resultado de gestión</label>
             <select id="modalNuevoEstado" onchange="toggleDateInput()" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 outline-none font-bold text-slate-700 cursor-pointer transition-all">
-                <option value="Pendiente">Solo Seguimiento (Sigue Pendiente)</option>
+                <option value="Pendiente">Solo Seguimiento (Entregado/Sigue Pendiente)</option>
                 <option value="Por Responder">Pidieron tiempo - Nos darán una respuesta</option>
                 <option value="Por Recoger">¡Aceptaron! - Hay que ir a recoger donación</option>
                 <option value="Donado" class="font-bold text-emerald-600">🎉 ¡Donación recibida hoy!</option>
+                <option value="No Donará" class="font-bold text-rose-600">❌ No donarán (Rechazado)</option>
             </select>
         </div>
 
@@ -458,7 +460,7 @@
         popularMultiSelect();
         renderizarTabla();
       }
-    }renderizarTabla
+    }
 
     function aplicarFiltroCarpeta(tipo) {
       activeFilterCarpeta = tipo;
@@ -555,6 +557,7 @@
         if(oficio.estado === 'Donado') { bgStyle = "bg-emerald-50 text-emerald-600"; dotColor = "bg-emerald-400"; } 
         else if(oficio.estado === 'Por Recoger') { bgStyle = "bg-blue-50 text-blue-600"; dotColor = "bg-blue-400"; } 
         else if(oficio.estado === 'Por Responder') { bgStyle = "bg-purple-50 text-purple-600"; dotColor = "bg-purple-400"; }
+        else if(oficio.estado === 'No Donará') { bgStyle = "bg-rose-50 text-rose-600"; dotColor = "bg-rose-400"; }
 
         const tagHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide ${bgStyle}"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${oficio.estado}</span>`;
 
@@ -579,7 +582,7 @@
           </td>
           
           <td class="block lg:table-cell px-0 lg:px-8 pt-3 pb-0 lg:py-4 text-right align-middle">
-             <button class="w-full lg:w-auto text-indigo-600 font-bold text-[13px] lg:text-xs bg-indigo-50 hover:bg-indigo-100 px-4 py-2 lg:py-1.5 rounded-xl transition-all flex items-center justify-center gap-2">
+             <button class="w-full lg:w-auto text-indigo-600 font-bold text-[13px] lg:text-xs bg-indigo-50 hover:bg-indigo-100 px-4 py-2 lg:py-1.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20">
                 <svg class="w-3.5 h-3.5 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Registrar <span class="lg:hidden">Seguimiento</span>
              </button>
@@ -590,11 +593,12 @@
     }
     
     function actualizarDashboardStats(data) {
-      let pendientes = 0, accion = 0, donados = 0;
+      let pendientes = 0, accion = 0, donados = 0, rechazados = 0;
       data.forEach(o => {
         if(o.estado === 'Pendiente') pendientes++;
         else if(o.estado === 'Por Recoger' || o.estado === 'Por Responder') accion++;
         else if(o.estado === 'Donado') donados++;
+        else if(o.estado === 'No Donará') rechazados++;
       });
 
       document.getElementById('kpiTotal').textContent = data.length;
@@ -606,7 +610,11 @@
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
-        data: { labels: ['Pendiente', 'Acción Req.', 'Donado'], datasets: [{ data: [pendientes, accion, donados], backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'], borderWidth: 0, hoverOffset: 4 }] },
+        data: { labels: ['Pendiente', 'Acción Req.', 'Donado', 'No Donará'], 
+            datasets: [
+              { 
+              data: [pendientes, accion, donados, rechazados], backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#F43F5E'], borderWidth: 0, hoverOffset: 4 }] 
+        },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '78%' }
       });
     }
@@ -695,8 +703,7 @@
       
       document.getElementById('nuevoComentario').value = '';
       document.getElementById('detalleDonacion').value = '';
-      document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : 'Pendiente';
-      document.getElementById('modalFecha').value = '';
+      document.getElementById('modalNuevoEstado').value = oficio.estado === 'Donado' ? 'Donado' : (oficio.estado === 'No Donará' ? 'No Donará' : 'Pendiente');      document.getElementById('modalFecha').value = '';
       toggleDateInput();
 
       document.getElementById('modalOficio').classList.remove('hidden');
@@ -720,6 +727,12 @@
           donacionContainer.classList.remove('hidden');
           labelComentario.textContent = "Comentario de cierre (Opcional)";
           document.getElementById('modalFecha').value = '';
+      } else if (estado === 'No Donará') {
+          // NUEVO COMPORTAMIENTO PARA "NO DONARÁ"
+          dateContainer.classList.add('hidden');
+          donacionContainer.classList.add('hidden');
+          labelComentario.textContent = "Motivo del rechazo";
+          document.getElementById('modalFecha').value = '';
       } else {
           dateContainer.classList.add('hidden');
           donacionContainer.classList.add('hidden');
@@ -739,20 +752,22 @@
       const response = await apiRequest({ action: 'getDetalle', idOficio: idOficio });
       
       if(response.success && response.historial.length > 0) {
-        timeline.innerHTML = response.historial.map(h => {
-          // Escapamos comillas en el comentario para que no rompa el código
+        timeline.innerHTML = response.historial.map((h, index) => {
           const safeComentario = h.comentario.replace(/'/g, "\\'").replace(/"/g, '&quot;');
           
-          return `
-          <div class="relative pb-4 select-none active:opacity-50 transition-opacity"
-               onmousedown="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')"
-               onmouseup="cancelarLongPress()"
-               onmouseleave="cancelarLongPress()"
-               ontouchstart="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')"
-               ontouchend="cancelarLongPress()"
-               ontouchmove="cancelarLongPress()">
+          // NUEVO: Solo el index 0 (el más reciente) obtiene los eventos de borrado
+          const eventListeners = index === 0 
+            ? `onmousedown="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')" onmouseup="cancelarLongPress()" onmouseleave="cancelarLongPress()" ontouchstart="iniciarLongPress('${idOficio}', '${h.fecha}', '${safeComentario}')" ontouchend="cancelarLongPress()" ontouchmove="cancelarLongPress()"` 
+            : "";
             
-            <span class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-[#fafcfc]"></span>
+          const hintEliminar = index === 0 
+            ? `<div class="absolute -right-2 top-0 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] font-bold text-rose-400 bg-rose-50 px-2 py-0.5 rounded-md">Mantén para borrar</div>` 
+            : "";
+
+          return `
+          <div class="relative pb-4 select-none ${index === 0 ? 'active:opacity-50 transition-opacity cursor-pointer group' : ''}" ${eventListeners}>
+            <span class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full ${index === 0 ? 'bg-indigo-400' : 'bg-slate-300'} border-2 border-[#fafcfc]"></span>
+            ${hintEliminar}
             <div class="flex justify-between items-baseline mb-0.5 pointer-events-none">
               <span class="text-xs font-extrabold text-slate-700">${h.usuario}</span>
               <span class="text-[10px] text-slate-400 font-bold">${h.fecha}</span>
@@ -765,6 +780,7 @@
         timeline.innerHTML = '<p class="text-xs font-bold text-slate-400 text-center uppercase tracking-widest py-4">Sin historial previo</p>';
       }
     }
+
 
     // Funciones que detectan si mantuvo presionado por 800 milisegundos
     function iniciarLongPress(idOficio, fecha, comentario) {
@@ -791,7 +807,8 @@
       });
 
       if(response.success) {
-        cargarHistorial(idOficio); // Recargamos para que desaparezca
+        cerrarModal(); 
+        cargarDataGeneral();
       } else {
         alert("Ocurrió un error al eliminar: " + response.message);
         cargarHistorial(idOficio); // Restauramos si falla
